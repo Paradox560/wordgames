@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
-        // Parse the JSON body form the request
+        // Parse the JSON body from the request
         const body = await req.json();
 
         // Send body to Flask API
-        const response = await fetch('http://localhost:5000/api/solve', {
-            method: 'GET',
+        const response = await fetch('http://127.0.0.1:5000/api/solve', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
         });

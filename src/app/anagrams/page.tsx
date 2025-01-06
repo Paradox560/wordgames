@@ -7,6 +7,7 @@ const Page: React.FC = () => {
   const [numLetters, setNumLetters] = useState<number>(6); // Number of letters (dropdown value)
   const [letters, setLetters] = useState<string[]>([]); // Letters the user will input
   const [submittedLetters, setSubmittedLetters] = useState<string>(""); // To display submitted letters
+  const [result, setResult] = useState<{ [key: number]: string[] } | null>(null); // To store the result
 
   // Handle number of letters change from dropdown
   const handleNumberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -23,16 +24,37 @@ const Page: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmittedLetters(letters.join("")); // Join all letters as a string
+
+    try {
+      const response = await fetch('/api/solve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: letters, game: 'anagrams' }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      setResult(data.possible_words);
+    } catch (error) {
+      console.error('Error fetching anagrams:', error);
+    }
+  };
+
+  // Function to refresh letters
+  const refreshLetters = () => {
+    setLetters(Array(numLetters).fill(""));
+    setSubmittedLetters("");
+    setResult(null);
   };
 
   return (
     <>
-      <Navbar />
+      <Navbar onRefresh={refreshLetters} />
       <div className="min-h-screen bg-gradient-to-br from-purple-400 to-teal-500 py-12">
-        <div className="max-w-2xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
+        <div className="max-w-4xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
             Anagram Solver
           </h1>
@@ -87,6 +109,24 @@ const Page: React.FC = () => {
                 </button>
               </div>
             </form>
+
+            {result && Object.keys(result).length > 0 && (
+              <div className="mt-8 text-white">
+                <h2 className="text-2xl font-bold">Possible Words:</h2>
+                {Object.entries(result).map(([length, words]) => (
+                  <div key={length} className="mt-4">
+                    <h3 className="text-xl font-semibold">{length} letters:</h3>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      {words.sort().map((word, index) => (
+                        <div key={index} className="p-2 bg-white/10 rounded-lg text-center text-white">
+                          {word}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

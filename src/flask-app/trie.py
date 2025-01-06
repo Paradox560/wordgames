@@ -33,25 +33,3 @@ class Trie:
                 return False  # Prefix not found
             node = node.children[char]
         return True  # Prefix exists
-
-# Example usage
-words = ["apple", "app", "apricot", "bat", "ball"]
-trie = Trie()
-
-# Insert words into the trie
-for word in words:
-    trie.insert(word)
-
-# Search for words in the trie
-print(trie.search("apple"))  # True
-print(trie.search("apricot"))  # True
-print(trie.search("app"))  # True
-print(trie.search("batman"))  # False
-
-# Check for prefixes
-print(trie.starts_with("app"))  # True
-print(trie.starts_with("bat"))  # True
-print(trie.starts_with("cat"))  # False
-
-def get_words(letter_array):
-    return {5: "Hello"}

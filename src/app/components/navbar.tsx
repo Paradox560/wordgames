@@ -2,10 +2,14 @@
 
 import Link from 'next/link';
 
-export default function Navbar() {
+interface NavbarProps {
+  onRefresh: () => void;
+}
+
+export default function Navbar({ onRefresh }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 w-full p-4 z-50">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 flex justify-between">
         <Link href="/">
           <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-lg
             border border-white/30 flex items-center justify-center
@@ -26,6 +30,27 @@ export default function Navbar() {
             </svg>
           </div>
         </Link>
+        <button
+          onClick={onRefresh}
+          className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-lg
+            border border-white/30 flex items-center justify-center
+            hover:bg-white/30 transition-all duration-300 group"
+        >
+          <svg
+            className="w-5 h-5 text-white transform group-hover:scale-110 transition-transform"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v6h6M20 20v-6h-6M4 20l16-16"
+            />
+          </svg>
+        </button>
       </div>
     </nav>
   );
