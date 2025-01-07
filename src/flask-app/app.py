@@ -21,6 +21,7 @@ def solve():
         data = request.get_json()
         game = data.get("game")
         letters = data.get("data", [])
+        letters = [letter.lower() for letter in letters]
 
         if game == "anagrams":
             words = generate_anagram_words(letters)

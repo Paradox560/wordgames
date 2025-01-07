@@ -19,24 +19,33 @@ with open(file_path, 'r') as file:
 def generate_anagram_words(letters):
     """Generate all possible words from given letters."""
     word_dict = {}
+
     for length in range(3, len(letters) + 1):
         word_dict[length] = set()  # Use a set to avoid duplicates
+
         for perm in permutations(letters, length):
             word = ''.join(perm)
+
             if trie.search(word):
                 word_dict[length].add(word)
+
         word_dict[length] = list(word_dict[length])  # Convert set back to list
+
     return word_dict
 
 def generate_spelling_bee_words(letters, mandatory_letter):
     """Generate all possible words from given letters with one mandatory letter."""
     word_dict = {}
+
     for word in words:
         if len(word) >= 4 and mandatory_letter in word and all(char in letters for char in word):
             length = len(word)
+
             if length not in word_dict:
                 word_dict[length] = []
+
             word_dict[length].append(word)
+
     return word_dict
 
 # # Example usage
