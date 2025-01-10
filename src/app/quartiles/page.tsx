@@ -3,15 +3,15 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/navbar';
 
-export default function WordHunt() {
-  const [gridSize, setGridSize] = useState<3 | 4 | 5>(4);
+export default function Quartiles() {
+  const [gridSize, setGridSize] = useState({ rows: 5, cols: 4 });
   const [letters, setLetters] = useState<string[][]>([]);
   const [submittedLetters, setSubmittedLetters] = useState<string[][]>([]);
 
   useEffect(() => {
     const initialLetters = Array.from(
-      { length: gridSize }, 
-      () => Array(gridSize).fill("")
+      { length: gridSize.rows }, 
+      () => Array(gridSize.cols).fill("")
     );
     setLetters(initialLetters);
   }, [gridSize]);
@@ -29,8 +29,8 @@ export default function WordHunt() {
 
   const refreshLetters = () => {
     const initialLetters = Array.from(
-      { length: gridSize }, 
-      () => Array(gridSize).fill("")
+      { length: gridSize.rows }, 
+      () => Array(gridSize.cols).fill("")
     );
     setLetters(initialLetters);
     setSubmittedLetters([]);
@@ -38,38 +38,19 @@ export default function WordHunt() {
 
   return (
     <>
-      <Navbar onRefresh={refreshLetters} gameUrl='https://squaredle.app/'/>
-      <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 pt-20 pb-12">
-        <div className="max-w-xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
+      <Navbar onRefresh={refreshLetters} gameUrl='https://support.apple.com/guide/iphone/solve-quartiles-puzzles-iph9ccdd1bab/ios'/>
+      <div className="min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 pt-20 pb-12">
+        <div className="max-w-2xl mx-auto p-12 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
-            Word Hunt Grid
+            Quartiles Grid
           </h1>
-
-          <div className="space-y-3">
-            <label htmlFor="grid-size" className="block text-lg font-medium text-white drop-shadow">
-              Select grid size:
-            </label>
-            <select
-              id="grid-size"
-              value={gridSize}
-              onChange={(e) => setGridSize(Number(e.target.value) as 3 | 4 | 5)}
-              className="w-full p-3 rounded-xl bg-white/20 border-2 border-white/50 
-                text-white font-medium backdrop-blur-sm
-                focus:outline-none focus:ring-2 focus:ring-white/50 
-                transition-all duration-200"
-            >
-              <option value={3}>3 x 3</option>
-              <option value={4}>4 x 4</option>
-              <option value={5}>5 x 5</option>
-            </select>
-          </div>
 
           <form onSubmit={handleSubmit}>
             <div 
-              className="grid gap-4 p-6 bg-white/20 rounded-xl backdrop-filter backdrop-blur-lg"
+              className="grid gap-6 p-8 bg-white/20 rounded-xl backdrop-filter backdrop-blur-lg"
               style={{
                 display: 'grid',
-                gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+                gridTemplateColumns: `repeat(${gridSize.cols}, 1fr)`,
                 width: 'fit-content',
                 margin: '0 auto'
               }}
@@ -79,14 +60,14 @@ export default function WordHunt() {
                   <input
                     key={`${rowIndex}-${colIndex}`}
                     type="text"
-                    maxLength={1}
+                    maxLength={5}
                     value={letter}
                     onChange={(e) => handleLetterChange(rowIndex, colIndex, e.target.value)}
-                    className="w-14 h-14 p-3 border-2 border-white/50 rounded-lg text-center 
+                    className="w-24 h-14 p-3 border-2 border-white/50 rounded-lg text-center 
                       text-xl font-bold text-white bg-white/10 
                       focus:outline-none focus:ring-2 focus:ring-white 
                       focus:border-transparent transition-all duration-200 
-                      placeholder-white/50 uppercase"
+                      placeholder-white/50 lowercase"
                   />
                 ))
               )}

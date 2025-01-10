@@ -83,7 +83,7 @@ export default function SpellingBee() {
 
   return (
     <>
-      <Navbar onRefresh={refreshLetters} />
+      <Navbar onRefresh={refreshLetters} gameUrl='https://www.nytimes.com/puzzles/spelling-bee'/>
       <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-amber-500 to-orange-500 py-12">
         <div className="max-w-xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">

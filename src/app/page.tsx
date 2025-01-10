@@ -11,7 +11,8 @@ const games: Tile[] = [
   { word: "Word Hunt", url: "/wordhunt", icon: "🎯" },
   { word: "Anagrams", url: "/anagrams", icon: "🌀" },
   // { word: "Wordle", url: "/wordle", icon: "🟩" },
-  // { word: "Letter Loop", url: "/letterloop", icon: "🔄" }
+  { word: "Letter Loop", url: "/letterloop", icon: "🔄" },
+  { word: "Quartiles", url: "/quartiles", icon: "🧩"}
 ]
 
 export default function Home() {
