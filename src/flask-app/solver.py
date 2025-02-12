@@ -5,6 +5,7 @@ import os
 # Initialize the global trie
 trie = Trie()
 words = []
+five_letter_words = []
 
 # Load words from large.txt into the trie
 file_path = os.path.join(os.path.dirname(__file__), '../dictionaries/large.txt')
@@ -15,6 +16,11 @@ with open(file_path, 'r') as file:
 # Load words from large.txt into an array
 with open(file_path, 'r') as file:
     words = [word.strip() for word in file]
+
+# Load five-letter words from five-letter-words.txt into an array
+file_path = os.path.join(os.path.dirname(__file__), '../dictionaries/five_letter_words.txt')
+with open(file_path, 'r') as file:
+    five_letter_words = [word.strip() for word in file]
 
 def generate_anagram_words(letters):
     """Generate all possible words from given letters."""
@@ -47,6 +53,71 @@ def generate_spelling_bee_words(letters, mandatory_letter):
             word_dict[length].append(word)
 
     return word_dict
+
+def generate_letter_loop_combinations(letters):
+    """Generate pairs of five-letter words using all given letters."""
+    word_pairs = []
+
+    # Create a dictionary of letter counts for quick lookup
+    letter_count = {char: letters.count(char) for char in set(letters)}
+    valid_words = []
+
+    for word in five_letter_words:
+        word_count = {char: word.count(char) for char in set(word)}
+        if all(letter_count.get(char, 0) >= count for char, count in word_count.items()):
+            valid_words.append(word)
+
+    for i in range(len(valid_words)):
+        for j in range(i + 1, len(valid_words)):
+            word1 = valid_words[i]
+            word2 = valid_words[j]
+            word_count = {char: word1.count(char) + word2.count(char) for char in set(word1 + word2)}
+            word_count[word1[0]] -= 1
+            word_count[word2[0]] -= 1
+            if all(letter_count.get(char, 0) >= count for char, count in word_count.items()) and word1[-1] == word2[0] and word2[-1] == word1[0]:
+                word_pairs.append((word1, word2))
+
+    return word_pairs
+
+def generate_quartiles_words(fragments):
+    """Generate valid words by combining 1-4 fragments."""
+    valid_combinations = []
+
+    def backtrack(current_combination, remaining_fragments):
+        # Join current combination to form a word
+        word = ''.join(current_combination)
+        if trie.search(word):
+            valid_combinations.append(tuple(current_combination))
+
+        # Stop if the combination already has 4 fragments
+        if len(current_combination) == 4:
+            return
+        
+        # Check if the current word starts with a valid prefix
+        if not trie.starts_with(word):
+            return
+
+        # Try adding each remaining fragment to the current combination
+        for i in range(len(remaining_fragments)):
+            backtrack(current_combination + [remaining_fragments[i]], remaining_fragments[:i] + remaining_fragments[i+1:])
+
+    # Start backtracking with an empty combination
+    backtrack([], fragments)
+
+    return valid_combinations
+
+# fragments = ["ra", "re"]
+fragments = ["bac", "ks", "tree", "ts", "mis", "re", "pre", "sent", "th", "ems", "elv", "es", "flo", "od", "lig", "hts", "nutc", "ra", "cke", "rs"]
+result = generate_quartiles_words(fragments)
+print(result)
+
+# Example usage
+# letters = "ygraaeel"
+# result = generate_letter_loop_combinations(letters)
+# print(result)
+
+# def generate_word_hunt_words()
+# def generate_quartiles_words()
 
 # # Example usage
 # letters = "normacy"  # Replace with 7 unique letters

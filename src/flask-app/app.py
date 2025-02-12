@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from solver import generate_anagram_words, generate_spelling_bee_words
+from solver import generate_anagram_words, generate_spelling_bee_words, generate_letter_loop_combinations, generate_quartiles_words
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5000")
@@ -25,8 +25,16 @@ def solve():
 
         if game == "anagrams":
             words = generate_anagram_words(letters)
-        else:
+        elif game == "spellingbee":
             words = generate_spelling_bee_words(letters, letters[0])
+        elif game == "wordhunt":
+            words = generate_anagram_words(letters)
+        elif game == "letterloop":
+            words = generate_letter_loop_combinations(letters)
+        elif game == "quartiles":
+            words = generate_quartiles_words(letters)
+        else:
+            return jsonify({"error": "Invalid game type"}), 400
 
         return jsonify({ "possible_words": words })
     

@@ -59,7 +59,7 @@ export default function Navbar({ onRefresh, gameUrl }: NavbarProps) {
             </div>
           </div>
           <div className="relative group">
-            <Link href={gameUrl}>
+            <Link href={gameUrl} target='_blank'>
               <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-lg
                 border border-white/30 flex items-center justify-center
                 hover:bg-white/30 transition-all duration-300 group">
