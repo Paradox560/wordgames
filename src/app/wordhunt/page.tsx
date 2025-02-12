@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Navbar from '../components/navbar';
+import { useState, useEffect } from "react";
+import Navbar from "../components/navbar";
 
 export default function WordHunt() {
   const [gridSize, setGridSize] = useState<3 | 4 | 5>(4);
   const [letters, setLetters] = useState<string[][]>([]);
-  const [submittedLetters, setSubmittedLetters] = useState<string[][]>([]);
+  const [submittedLetters, setSubmittedLetters] = useState<string[]>([]);
+  const [result, setResult] = useState<{ [key: number]: string[] } | null>(
+    null
+  );
+  const [toggles, setToggles] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
-    const initialLetters = Array.from(
-      { length: gridSize }, 
-      () => Array(gridSize).fill("")
+    const initialLetters = Array.from({ length: gridSize }, () =>
+      Array(gridSize).fill("")
     );
     setLetters(initialLetters);
   }, [gridSize]);
@@ -22,23 +25,52 @@ export default function WordHunt() {
     setLetters(updatedLetters);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmittedLetters(letters);
+    const flatLetters = letters.flat();
+    setSubmittedLetters(flatLetters);
+
+    try {
+      const response = await fetch("/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: flatLetters, game: "wordhunt" }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      setResult(data.possible_words);
+      setToggles(
+        Object.keys(data.possible_words).reduce((acc, key) => {
+          acc[Number(key)] = true;
+          return acc;
+        }, {} as { [key: number]: boolean })
+      );
+    } catch (error) {
+      console.error("Error fetching word hunt words:", error);
+    }
   };
 
   const refreshLetters = () => {
-    const initialLetters = Array.from(
-      { length: gridSize }, 
-      () => Array(gridSize).fill("")
+    const initialLetters = Array.from({ length: gridSize }, () =>
+      Array(gridSize).fill("")
     );
     setLetters(initialLetters);
     setSubmittedLetters([]);
+    setResult(null);
+    setToggles({});
+  };
+
+  const toggleSection = (key: number) => {
+    setToggles((prevToggles) => ({
+      ...prevToggles,
+      [key]: !prevToggles[key],
+    }));
   };
 
   return (
     <>
-      <Navbar onRefresh={refreshLetters} gameUrl='https://squaredle.app/'/>
+      <Navbar onRefresh={refreshLetters} gameUrl="https://squaredle.app/" />
       <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 pt-20 pb-12">
         <div className="max-w-xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
@@ -46,7 +78,10 @@ export default function WordHunt() {
           </h1>
 
           <div className="space-y-3">
-            <label htmlFor="grid-size" className="block text-lg font-medium text-white drop-shadow">
+            <label
+              htmlFor="grid-size"
+              className="block text-lg font-medium text-white drop-shadow"
+            >
               Select grid size:
             </label>
             <select
@@ -65,13 +100,13 @@ export default function WordHunt() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div 
+            <div
               className="grid gap-4 p-6 bg-white/20 rounded-xl backdrop-filter backdrop-blur-lg"
               style={{
-                display: 'grid',
+                display: "grid",
                 gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                width: 'fit-content',
-                margin: '0 auto'
+                width: "fit-content",
+                margin: "0 auto",
               }}
             >
               {letters.map((row, rowIndex) =>
@@ -81,7 +116,9 @@ export default function WordHunt() {
                     type="text"
                     maxLength={1}
                     value={letter}
-                    onChange={(e) => handleLetterChange(rowIndex, colIndex, e.target.value)}
+                    onChange={(e) =>
+                      handleLetterChange(rowIndex, colIndex, e.target.value)
+                    }
                     className="w-14 h-14 p-3 border-2 border-white/50 rounded-lg text-center 
                       text-xl font-bold text-white bg-white/10 
                       focus:outline-none focus:ring-2 focus:ring-white 
@@ -102,22 +139,50 @@ export default function WordHunt() {
             </div>
           </form>
 
-          {/* Display submitted letters in a 2D grid format */}
-          {submittedLetters.length > 0 && (
+          {/* Display result from API */}
+          {result && Object.keys(result).length > 0 && (
             <div className="mt-6">
-              <h2 className="text-2xl text-center font-medium">Submitted Letters:</h2>
-              <div className="mt-4 grid grid-cols-4 gap-4">
-                {submittedLetters.map((row, rowIndex) =>
-                  row.map((letter, colIndex) => (
-                    <div
-                      key={`${rowIndex}-${colIndex}`}
-                      className="p-3 border border-gray-300 rounded-lg text-center"
+              <h2 className="text-2xl text-center font-medium">
+                Possible Words:
+              </h2>
+              {Object.entries(result).map(([length, words]) => (
+                <div key={length} className="mt-4">
+                  <button
+                    onClick={() => toggleSection(Number(length))}
+                    className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 flex justify-between items-center"
+                  >
+                    {length} letters ({words.length})
+                    <svg
+                      className={`w-5 h-5 transform transition-transform ${
+                        toggles[Number(length)] ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      {letter}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  {toggles[Number(length)] && (
+                    <div className="mt-2 grid grid-cols-2 gap-4">
+                      {words.sort().map((word, index) => (
+                        <div
+                          key={index}
+                          className="p-2 bg-white/10 rounded-lg text-center text-white"
+                        >
+                          {word}
+                        </div>
+                      ))}
                     </div>
-                  ))
-                )}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>

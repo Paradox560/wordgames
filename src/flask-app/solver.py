@@ -106,10 +106,47 @@ def generate_quartiles_words(fragments):
 
     return valid_combinations
 
-# fragments = ["ra", "re"]
-fragments = ["bac", "ks", "tree", "ts", "mis", "re", "pre", "sent", "th", "ems", "elv", "es", "flo", "od", "lig", "hts", "nutc", "ra", "cke", "rs"]
-result = generate_quartiles_words(fragments)
+def generate_word_hunt_words(letters):
+    """Generate all possible words from a grid of letters using DFS traversal and the trie."""
+    n = int(len(letters) ** 0.5)  # Determine the grid size (3x3, 4x4, or 5x5)
+    grid = [list(letters[i * n:(i + 1) * n]) for i in range(n)]
+    valid_words = set()
+    directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+
+    def dfs(x, y, path, visited):
+        word = ''.join(path)
+        if trie.search(word) and len(word) >= 3:
+            valid_words.add(word)
+        if not trie.starts_with(word):
+            return
+
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < n and 0 <= ny < n and (nx, ny) not in visited:
+                visited.add((nx, ny))
+                dfs(nx, ny, path + [grid[nx][ny]], visited)
+                visited.remove((nx, ny))
+
+    for i in range(n):
+        for j in range(n):
+            dfs(i, j, [grid[i][j]], {(i, j)})
+
+    found_words = {}
+    for word in valid_words:
+        if len(word) not in found_words:
+            found_words[len(word)] = []
+        found_words[len(word)].append(word)
+
+    return found_words
+
+# Example usage
+letters = "abcdefghijklmnop"  # Replace with 9, 16, or 25 letters
+result = generate_word_hunt_words(letters)
 print(result)
+
+# fragments = ["bac", "ks", "tree", "ts", "mis", "re", "pre", "sent", "th", "ems", "elv", "es", "flo", "od", "lig", "hts", "nutc", "ra", "cke", "rs"]
+# result = generate_quartiles_words(fragments)
+# print(result)
 
 # Example usage
 # letters = "ygraaeel"
