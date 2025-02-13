@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState } from "react";
 import Navbar from "../components/navbar";
@@ -7,7 +7,10 @@ const Page: React.FC = () => {
   const [numLetters, setNumLetters] = useState<number>(6); // Number of letters (dropdown value)
   const [letters, setLetters] = useState<string[]>([]); // Letters the user will input
   const [submittedLetters, setSubmittedLetters] = useState<string>(""); // To display submitted letters
-  const [result, setResult] = useState<{ [key: number]: string[] } | null>(null); // To store the result
+  const [result, setResult] = useState<{ [key: number]: string[] } | null>(
+    null
+  ); // To store the result
+  const [toggles, setToggles] = useState<{ [key: number]: boolean }>({}); // To store toggle states
 
   // Handle number of letters change from dropdown
   const handleNumberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -29,17 +32,23 @@ const Page: React.FC = () => {
     setSubmittedLetters(letters.join("")); // Join all letters as a string
 
     try {
-      const response = await fetch('/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: letters, game: 'anagrams' }),
+      const response = await fetch("/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: letters, game: "anagrams" }),
       });
 
       const data = await response.json();
       console.log(data);
       setResult(data.possible_words);
+      setToggles(
+        Object.keys(data.possible_words).reduce((acc, key) => {
+          acc[Number(key)] = true;
+          return acc;
+        }, {} as { [key: number]: boolean })
+      );
     } catch (error) {
-      console.error('Error fetching anagrams:', error);
+      console.error("Error fetching anagrams:", error);
     }
   };
 
@@ -48,11 +57,22 @@ const Page: React.FC = () => {
     setLetters(Array(numLetters).fill(""));
     setSubmittedLetters("");
     setResult(null);
+    setToggles({});
+  };
+
+  const toggleSection = (key: number) => {
+    setToggles((prevToggles) => ({
+      ...prevToggles,
+      [key]: !prevToggles[key],
+    }));
   };
 
   return (
     <>
-      <Navbar onRefresh={refreshLetters} gameUrl="https://www.pogo.com/games/anagrams"/>
+      <Navbar
+        onRefresh={refreshLetters}
+        gameUrl="https://www.pogo.com/games/anagrams"
+      />
       <div className="min-h-screen bg-gradient-to-br from-purple-400 to-teal-500 py-12">
         <div className="max-w-4xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
@@ -61,7 +81,10 @@ const Page: React.FC = () => {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <label htmlFor="letter-count" className="block text-lg font-medium text-white drop-shadow">
+              <label
+                htmlFor="letter-count"
+                className="block text-lg font-medium text-white drop-shadow"
+              >
                 Choose the number of letters:
               </label>
               <select
@@ -88,7 +111,7 @@ const Page: React.FC = () => {
                     key={index}
                     type="text"
                     maxLength={1}
-                    value={letters[index] || ''}
+                    value={letters[index] || ""}
                     onChange={(e) => handleLetterChange(index, e.target.value)}
                     className="w-16 h-16 text-center text-xl font-bold text-white 
                       bg-white/10 border-2 border-white/50 rounded-lg
@@ -115,14 +138,40 @@ const Page: React.FC = () => {
                 <h2 className="text-2xl font-bold">Possible Words:</h2>
                 {Object.entries(result).map(([length, words]) => (
                   <div key={length} className="mt-4">
-                    <h3 className="text-xl font-semibold">{length} letters:</h3>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      {words.sort().map((word, index) => (
-                        <div key={index} className="p-2 bg-white/10 rounded-lg text-center text-white">
-                          {word}
-                        </div>
-                      ))}
-                    </div>
+                    <button
+                      onClick={() => toggleSection(Number(length))}
+                      className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 flex justify-between items-center"
+                    >
+                      {length} letters ({words.length})
+                      <svg
+                        className={`w-5 h-5 transform transition-transform ${
+                          toggles[Number(length)] ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    {toggles[Number(length)] && (
+                      <div className="mt-2 grid grid-cols-2 gap-4">
+                        {words.sort().map((word, index) => (
+                          <div
+                            key={index}
+                            className="p-2 bg-white/10 rounded-lg text-center text-white"
+                          >
+                            {word}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -132,9 +132,11 @@ export default function WordHunt() {
             <div className="mt-8 text-center">
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
+                className="px-8 py-3 bg-white/20 rounded-xl text-white font-bold
+                  border-2 border-white/50 hover:bg-white/30 
+                  transition-all duration-200"
               >
-                Submit
+                Find Words
               </button>
             </div>
           </form>

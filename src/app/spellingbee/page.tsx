@@ -1,104 +1,163 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Navbar from '../components/navbar';
+import { useState } from "react";
+import Navbar from "../components/navbar";
 
 export default function SpellingBee() {
-  const [letters, setLetters] = useState(Array(7).fill(''));
-  const [error, setError] = useState<string>('');
-  const [result, setResult] = useState<{ [key: number]: string[] } | null>(null); // To store the result
+  const [letters, setLetters] = useState(Array(7).fill(""));
+  const [error, setError] = useState<string>("");
+  const [result, setResult] = useState<{ [key: number]: string[] } | null>(
+    null
+  ); // To store the result
+  const [toggles, setToggles] = useState<{ [key: number]: boolean }>({}); // To store toggle states
   const centerIndex = 0; // Center hexagon is always first in the array
 
   const handleLetterChange = (index: number, value: string) => {
     const newValue = value.toUpperCase();
-    
+
     // Check for duplicates
     if (newValue && letters.includes(newValue)) {
-      setError('Duplicate letters are not allowed');
+      setError("Duplicate letters are not allowed");
       return;
     }
 
     const newLetters = [...letters];
     newLetters[index] = newValue;
     setLetters(newLetters);
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation checks
-    if (letters.some(letter => !letter)) {
-      setError('Please fill all letters');
+    if (letters.some((letter) => !letter)) {
+      setError("Please fill all letters");
       return;
     }
 
     if (new Set(letters).size !== letters.length) {
-      setError('Duplicate letters are not allowed');
+      setError("Duplicate letters are not allowed");
       return;
     }
 
     const centerLetter = letters[centerIndex];
-    setError('');
-    
+    setError("");
+
     // Submit valid letters with center letter marked
     const submissionData = {
       letters: letters,
-      centerLetter: centerLetter
+      centerLetter: centerLetter,
     };
-    
+
     // Handle submission logic here
     console.log(submissionData);
 
     try {
-      const response = await fetch('/api/solve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: letters, game: 'spellingbee' }),
+      const response = await fetch("/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: letters, game: "spellingbee" }),
       });
 
       const data = await response.json();
       console.log(data);
       setResult(data.possible_words);
+      setToggles(
+        Object.keys(data.possible_words).reduce((acc, key) => {
+          acc[Number(key)] = true;
+          return acc;
+        }, {} as { [key: number]: boolean })
+      );
     } catch (error) {
-      console.error('Error fetching spelling bee words:', error);
+      console.error("Error fetching spelling bee words:", error);
     }
   };
 
   const refreshLetters = () => {
-    setLetters(Array(7).fill(''));
-    setError('');
+    setLetters(Array(7).fill(""));
+    setError("");
     setResult(null);
+    setToggles({});
+  };
+
+  const toggleSection = (key: number) => {
+    setToggles((prevToggles) => ({
+      ...prevToggles,
+      [key]: !prevToggles[key],
+    }));
   };
 
   const hexagonPositions = [
-    { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bg: 'bg-yellow-400' }, // center
-    { top: '24%', left: '50%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // top
-    { top: '37%', left: '70%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // top right
-    { top: '63%', left: '70%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // bottom right
-    { top: '76%', left: '50%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // bottom
-    { top: '63%', left: '30%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // bottom left
-    { top: '37%', left: '30%', transform: 'translate(-50%, -50%)', bg: 'bg-white/30' }, // top left
+    {
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-yellow-400",
+    }, // center
+    {
+      top: "24%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // top
+    {
+      top: "37%",
+      left: "70%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // top right
+    {
+      top: "63%",
+      left: "70%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // bottom right
+    {
+      top: "76%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // bottom
+    {
+      top: "63%",
+      left: "30%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // bottom left
+    {
+      top: "37%",
+      left: "30%",
+      transform: "translate(-50%, -50%)",
+      bg: "bg-white/30",
+    }, // top left
   ];
 
   return (
     <>
-      <Navbar onRefresh={refreshLetters} gameUrl='https://www.nytimes.com/puzzles/spelling-bee'/>
+      <Navbar
+        onRefresh={refreshLetters}
+        gameUrl="https://www.nytimes.com/puzzles/spelling-bee"
+      />
       <div className="min-h-screen bg-gradient-to-br from-yellow-300 via-amber-500 to-orange-500 py-12">
         <div className="max-w-xl mx-auto p-8 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
           <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
             Spelling Bee
           </h1>
-          
+
           {error && (
-            <div className="text-black text-center font-medium bg-red-400 
-              backdrop-blur-sm rounded-lg p-3 border border-red-200/20">
+            <div
+              className="text-black text-center font-medium bg-red-400 
+              backdrop-blur-sm rounded-lg p-3 border border-red-200/20"
+            >
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
-            <div className="relative w-[400px] h-[400px] mx-auto">  {/* Increased from 300px */}
+            <div className="relative w-[400px] h-[400px] mx-auto">
+              {" "}
+              {/* Increased from 300px */}
               {hexagonPositions.map((pos, index) => (
                 <div
                   key={index}
@@ -116,7 +175,8 @@ export default function SpellingBee() {
                     onChange={(e) => handleLetterChange(index, e.target.value)}
                     className={`w-24 h-24 ${pos.bg} text-center text-3xl font-bold text-white`}
                     style={{
-                      clipPath: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+                      clipPath:
+                        "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
                     }}
                   />
                 </div>
@@ -132,20 +192,46 @@ export default function SpellingBee() {
               </button>
             </div>
           </form>
-          
+
           {result && Object.keys(result).length > 0 && (
             <div className="mt-8 text-white">
               <h2 className="text-2xl font-bold">Possible Words:</h2>
               {Object.entries(result).map(([length, words]) => (
                 <div key={length} className="mt-4">
-                  <h3 className="text-xl font-semibold">{length} letters:</h3>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
-                    {words.sort().map((word, index) => (
-                      <div key={index} className="p-2 bg-white/10 rounded-lg text-center text-white">
-                        {word}
-                      </div>
-                    ))}
-                  </div>
+                  <button
+                    onClick={() => toggleSection(Number(length))}
+                    className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-300 flex justify-between items-center"
+                  >
+                    {length} letters ({words.length})
+                    <svg
+                      className={`w-5 h-5 transform transition-transform ${
+                        toggles[Number(length)] ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  {toggles[Number(length)] && (
+                    <div className="mt-2 grid grid-cols-2 gap-4">
+                      {words.sort().map((word, index) => (
+                        <div
+                          key={index}
+                          className="p-2 bg-white/10 rounded-lg text-center text-white"
+                        >
+                          {word}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -27,15 +27,16 @@ def generate_anagram_words(letters):
     word_dict = {}
 
     for length in range(3, len(letters) + 1):
-        word_dict[length] = set()  # Use a set to avoid duplicates
+        word_dict[length] = set()
 
+        # Searches every possible permutation to find valid words
         for perm in permutations(letters, length):
             word = ''.join(perm)
 
             if trie.search(word):
                 word_dict[length].add(word)
 
-        word_dict[length] = list(word_dict[length])  # Convert set back to list
+        word_dict[length] = list(word_dict[length])
 
     return word_dict
 
@@ -62,18 +63,24 @@ def generate_letter_loop_combinations(letters):
     letter_count = {char: letters.count(char) for char in set(letters)}
     valid_words = []
 
+    # Find all valid five-letter words that can be formed using the given letters
     for word in five_letter_words:
         word_count = {char: word.count(char) for char in set(word)}
         if all(letter_count.get(char, 0) >= count for char, count in word_count.items()):
             valid_words.append(word)
 
+    # Find all pairs of valid words that can be combined
     for i in range(len(valid_words)):
         for j in range(i + 1, len(valid_words)):
             word1 = valid_words[i]
             word2 = valid_words[j]
             word_count = {char: word1.count(char) + word2.count(char) for char in set(word1 + word2)}
+
+            # Subtract the counts of shared letters
             word_count[word1[0]] -= 1
             word_count[word2[0]] -= 1
+
+            # Determines if valid pair of words
             if all(letter_count.get(char, 0) >= count for char, count in word_count.items()) and word1[-1] == word2[0] and word2[-1] == word1[0]:
                 word_pairs.append((word1, word2))
 
@@ -138,27 +145,3 @@ def generate_word_hunt_words(letters):
         found_words[len(word)].append(word)
 
     return found_words
-
-# Example usage
-letters = "abcdefghijklmnop"  # Replace with 9, 16, or 25 letters
-result = generate_word_hunt_words(letters)
-print(result)
-
-# fragments = ["bac", "ks", "tree", "ts", "mis", "re", "pre", "sent", "th", "ems", "elv", "es", "flo", "od", "lig", "hts", "nutc", "ra", "cke", "rs"]
-# result = generate_quartiles_words(fragments)
-# print(result)
-
-# Example usage
-# letters = "ygraaeel"
-# result = generate_letter_loop_combinations(letters)
-# print(result)
-
-# def generate_word_hunt_words()
-# def generate_quartiles_words()
-
-# # Example usage
-# letters = "normacy"  # Replace with 7 unique letters
-# mandatory_letter = "m"  # Replace with the mandatory letter
-# result = generate_anagram_words(letters)
-# # result = generate_spelling_bee_words(letters, mandatory_letter)
-# print(result)
