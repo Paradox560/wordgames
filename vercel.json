@@ -1,0 +1,27 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "package.json",
+            "use": "@vercel/next"
+        },
+        {
+            "src": "src/flask-app/app.py",
+            "use": "@vercel/python",
+            "config": { 
+                "runtime": "python3.9",
+                "includeFiles": "src/flask-app/*.py"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "src/flask-app/app.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "src/app/$1"
+        }
+    ]
+}
