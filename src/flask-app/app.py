@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from solver import generate_anagram_words, generate_spelling_bee_words, generate_letter_loop_combinations, generate_quartiles_words, generate_word_hunt_words
+from .solver import generate_anagram_words, generate_spelling_bee_words, generate_letter_loop_combinations, generate_quartiles_words, generate_word_hunt_words
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5000")

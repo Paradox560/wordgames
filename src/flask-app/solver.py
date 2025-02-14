@@ -1,5 +1,5 @@
 from itertools import permutations
-from trie import Trie
+from .trie import Trie
 import os
 
 # Initialize the global trie
