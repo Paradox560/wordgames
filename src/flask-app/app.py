@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from .solver import generate_anagram_words, generate_spelling_bee_words, generate_letter_loop_combinations, generate_quartiles_words, generate_word_hunt_words
+from .solver import generate_weaver_path
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5000")
@@ -20,6 +21,13 @@ def solve():
     try:
         data = request.get_json()
         game = data.get("game")
+        if game == "weaver":
+            try:
+                path = generate_weaver_path(data.get("data"), data.get("wordLength"))
+            except ValueError as error:
+                return jsonify({"error": str(error)}), 400
+            return jsonify({"path": path, "moves": len(path) - 1 if path else None})
+
         letters = data.get("data", [])
         letters = [letter.lower() for letter in letters]
 

@@ -1,5 +1,43 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Weaver solver
+
+Open `/weaver` to find a shortest word ladder between two four- or five-letter
+words. Every move substitutes exactly one letter; all words must belong to
+Wordbench's bundled `large.txt` dictionary. This dictionary is not guaranteed to
+match the word list accepted by the original Weaver game.
+
+The Next.js frontend sends `POST /api/solve` with:
+
+```json
+{ "game": "weaver", "data": ["cold", "warm"], "wordLength": 4 }
+```
+
+The Flask backend returns `path` (including both endpoints) and `moves` (one less
+than the path length). Disconnected valid words return `{"path": [], "moves": null}`;
+invalid input or unknown words return HTTP 400. Identical valid words need zero moves.
+
+Start the backend and frontend in separate terminals from the project root:
+
+```bash
+python3 -m flask --app src.flask-app.app run --host 127.0.0.1 --port 5001
+```
+
+```bash
+PYTHON_BACKEND_URL=http://127.0.0.1:5001 npm run dev
+```
+
+Install the backend dependencies from `src/flask-app/requirements.txt` in your
+Python environment first. `PYTHON_BACKEND_URL` defaults to `http://127.0.0.1:5000`;
+port 5001 is useful on macOS, where a system service may already occupy port 5000.
+The backend URL is server-only.
+
+Run the solver and API regression tests with:
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
 ## Getting Started
 
 First, run the development server:

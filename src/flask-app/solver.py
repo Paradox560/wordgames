@@ -1,5 +1,7 @@
 from itertools import permutations
+from functools import lru_cache
 from .trie import Trie
+from .weaver import shortest_word_ladder
 import os
 
 # Initialize the global trie
@@ -21,6 +23,33 @@ with open(file_path, 'r') as file:
 file_path = os.path.join(os.path.dirname(__file__), '../dictionaries/five_letter_words.txt')
 with open(file_path, 'r') as file:
     five_letter_words = [word.strip() for word in file]
+
+@lru_cache(maxsize=2)
+def weaver_dictionary(word_length):
+    return frozenset(
+        word.lower() for word in words
+        if len(word) == word_length and word.isascii() and word.isalpha()
+    )
+
+
+def generate_weaver_path(endpoints, word_length):
+    """Validate both endpoints and find the minimum number of substitutions."""
+    if type(word_length) is not int or word_length not in (4, 5):
+        raise ValueError("Choose a word length of 4 or 5.")
+    if not isinstance(endpoints, list) or len(endpoints) != 2:
+        raise ValueError("Provide a start word and an end word.")
+
+    normalized = []
+    for label, word in zip(("Start", "End"), endpoints):
+        if not isinstance(word, str):
+            raise ValueError(f"{label} word must be text.")
+        word = word.strip().lower()
+        if len(word) != word_length or not word.isascii() or not word.isalpha():
+            raise ValueError(f"{label} word must contain exactly {word_length} letters (A–Z).")
+        normalized.append(word)
+
+    return shortest_word_ladder(*normalized, weaver_dictionary(word_length))
+
 
 def generate_anagram_words(letters):
     """Generate all possible words from given letters."""
@@ -155,4 +184,3 @@ def generate_wordle_words(array):
 
     # Create list of banned letters
     unusable_letters = []
-    

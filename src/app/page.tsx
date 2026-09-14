@@ -1,14 +1,6 @@
 import Link from 'next/link';
 import Brand from './components/brand';
-
-const games = [
-  { name: "Spelling Bee", url: "/spellingbee", mark: "A", meta: "7 letters" },
-  { name: "Word Hunt", url: "/wordhunt", mark: "B", meta: "3×3 — 5×5" },
-  { name: "Anagrams", url: "/anagrams", mark: "C", meta: "6 — 8 letters" },
-  { name: "Wordle", url: "/wordle", mark: "D", meta: "5 letters" },
-  { name: "Letter Loop", url: "/letterloop", mark: "E", meta: "8 letters" },
-  { name: "Quartiles", url: "/quartiles", mark: "F", meta: "20 tiles" },
-];
+import { games } from './games';
 
 export default function Home() {
   return <main>
