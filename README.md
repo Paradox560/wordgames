@@ -64,7 +64,32 @@ An example valid pair is BLACKSMITH → HARP. No match returns
 `{"solutions": [], "total": 0}`; malformed sides or duplicate board letters return
 HTTP 400. Results use the bundled dictionary, which can differ from NYT's word list.
 
-The same backend setup and unittest command above run both new games.
+## Numbword solver
+
+Open `/numbword` and choose a four-, five-, or six-letter word. Enter the target
+total, then optionally add letters known to be in the word (blue) and letters
+known to be absent (gray). Update these fields as you get clues from each guess.
+Clues indicate membership only, never positions or exact occurrence counts.
+Repeated clue letters are treated as one requirement; repeated letters in a word
+each contribute to its A=1 through Z=26 total (APPLE totals 50).
+
+Request:
+
+```json
+{ "game": "numbword", "wordLength": 5, "targetScore": 50, "presentLetters": "AP", "absentLetters": "ST" }
+```
+
+`POST /api/solve` returns `words` (all matching words, alphabetically sorted and
+deduplicated) and `total`. The two clue fields are optional strings containing
+only A–Z; case and surrounding whitespace are normalized. Length and total must
+be integers, with the total between `wordLength` and `26 * wordLength`.
+Malformed inputs, conflicting present/absent clues, or more distinct required
+letters than word slots return HTTP 400. No match returns `{"words": [], "total": 0}`.
+Results use the bundled dictionary, which can differ from Numbword's word list.
+The page shows 48 results at a time with an option to reveal more, and displays
+each word's letter-by-letter arithmetic.
+
+The same backend setup and unittest command above run all three new games.
 
 ## Getting Started
 

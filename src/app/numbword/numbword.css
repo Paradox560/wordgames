@@ -1,0 +1,48 @@
+.numbword-form { display:grid; gap:1.5rem; }
+.numbword-puzzle { display:flex; flex-wrap:wrap; gap:1.5rem; align-items:start; }
+.numbword-puzzle fieldset { flex:1 1 16rem; min-width:0; }
+.numbword-puzzle > div { flex:0 0 8rem; }
+.numbword-modes { display:flex; gap:.5rem; }
+.numbword-mode { position:relative; flex:1; cursor:pointer; }
+.numbword-mode input { position:absolute; opacity:0; width:100%; height:100%; cursor:pointer; }
+.numbword-mode span { display:block; padding:.85rem .5rem; border:1px solid var(--line); background:#fffdf7; text-align:center; font-size:.8rem; font-weight:700; white-space:nowrap; }
+.numbword-mode input:checked + span { background:var(--forest); border-color:var(--forest); color:white; }
+.numbword-mode input:focus-visible + span { outline:3px solid var(--mustard); outline-offset:3px; }
+.numbword-total { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.25rem; font-weight:700; padding:.6rem .8rem; }
+.numbword-note { color:var(--muted); font-size:.78rem; line-height:1.6; }
+.numbword-puzzle .numbword-note { margin-top:.35rem; }
+.numbword-clues { min-width:0; }
+.numbword-clue-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin:1rem 0 .65rem; }
+.numbword-clue-label { display:flex; flex-wrap:wrap; align-items:center; gap:.35rem; margin-bottom:.5rem; font-size:.82rem; font-weight:700; }
+.numbword-clue-dot { width:.6rem; height:.6rem; flex-shrink:0; }
+.numbword-present-dot { background:#34779a; }
+.numbword-absent-dot { background:#73756f; }
+.numbword-letters { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.1rem; letter-spacing:.15em; }
+.numbword-letters::placeholder { color:#827d72; font-size:.9rem; letter-spacing:normal; }
+.numbword-reference { border-block:1px solid var(--line); padding:.85rem 0; }
+.numbword-reference summary { cursor:pointer; font-size:.8rem; font-weight:700; }
+.numbword-reference summary span { margin-left:.4rem; font-weight:400; }
+.numbword-reference summary:focus-visible, .numbword-text-button:focus-visible { outline:2px solid var(--forest); outline-offset:4px; }
+.numbword-alphabet { display:grid; grid-template-columns:repeat(13,minmax(0,1fr)); gap:.3rem; margin:1rem 0 .7rem; }
+.numbword-alphabet > span { display:grid; gap:.1rem; text-align:center; padding:.3rem 0; background:#fffdf7; border:1px solid var(--line); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+.numbword-alphabet b { font-size:.85rem; }
+.numbword-alphabet span span { font-size:.65rem; color:var(--muted); }
+.numbword-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1.25rem; }
+.numbword-text-button { font-size:.78rem; text-decoration:underline; text-underline-offset:4px; }
+.numbword-form .primary-button:disabled { opacity:.7; cursor:wait; transform:none; box-shadow:none; }
+.numbword-error { margin:0; }
+.numbword-status:not(:empty) { margin-top:1.5rem; }
+.numbword-results-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.5rem; }
+.numbword-candidates { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.65rem; margin-top:1rem; }
+.numbword-candidates li { display:grid; gap:.4rem; padding:.9rem; border:1px solid var(--line); background:#fffdf7; }
+.numbword-candidate-word { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:1.05rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; }
+.numbword-equation { font-size:.68rem; color:var(--muted); font-variant-numeric:tabular-nums; line-height:1.5; }
+.numbword-more { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; margin-top:1rem; }
+.numbword-dictionary { margin-top:1.75rem; padding-top:1rem; border-top:1px solid var(--line); }
+@media (max-width:580px) {
+  .numbword-puzzle { gap:1rem; }
+  .numbword-total { max-width:9rem; }
+  .numbword-clue-fields { grid-template-columns:1fr; }
+  .numbword-alphabet { grid-template-columns:repeat(7,minmax(0,1fr)); }
+  .numbword-candidates { grid-template-columns:1fr; }
+}

@@ -3,6 +3,7 @@ from functools import lru_cache
 from .trie import Trie
 from .weaver import shortest_word_ladder
 from .letter_boxed import find_letter_boxed_pairs
+from .numbword import find_numbword_words
 import os
 
 # Initialize the global trie
@@ -54,6 +55,10 @@ def generate_weaver_path(endpoints, word_length):
 
 def generate_letter_boxed_pairs(sides):
     return find_letter_boxed_pairs(sides, words)
+
+
+def generate_numbword_words(word_length, target_score, present_letters, absent_letters):
+    return find_numbword_words(word_length, target_score, present_letters, absent_letters, words)
 
 
 def generate_anagram_words(letters):

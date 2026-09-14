@@ -7,4 +7,5 @@ export const games = [
   { name: "Quartiles", url: "/quartiles", mark: "F", meta: "20 tiles" },
   { name: "Weaver", url: "/weaver", mark: "G", meta: "4 or 5 letters" },
   { name: "Letter Boxed", url: "/letterboxed", mark: "H", meta: "12 letters · 2 words" },
+  { name: "Numbword", url: "/numbword", mark: "I", meta: "4, 5 or 6 letters" },
 ];
