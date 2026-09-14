@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>WordEngine</title>
+  <path fill="#1d211d" d="M0 0h64v64H0z"/>
+  <path fill="none" stroke="#f3efe4" stroke-width="4" stroke-linejoin="bevel" d="m9 22 4 20 6-13 6 13 4-20m24 0H37v20h16M37 32h13"/>
+</svg>

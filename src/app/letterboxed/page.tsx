@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ClipboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ClipboardEvent,
+} from "react";
 import GameShell from "../components/game-shell";
 import Navbar from "../components/navbar";
 import "./letterboxed.css";
@@ -10,10 +17,18 @@ type PairResult = { solutions: [string, string][]; total: number };
 const sideNames = ["Top", "Right", "Bottom", "Left"];
 const example = "BKTLSHAMPCIR";
 const positions = [
-  [30, 10], [50, 10], [70, 10], // Top, left to right
-  [90, 30], [90, 50], [90, 70], // Right, top to bottom
-  [30, 90], [50, 90], [70, 90], // Bottom, left to right
-  [10, 30], [10, 50], [10, 70], // Left, top to bottom
+  [30, 10],
+  [50, 10],
+  [70, 10], // Top, left to right
+  [90, 30],
+  [90, 50],
+  [90, 70], // Right, top to bottom
+  [30, 90],
+  [50, 90],
+  [70, 90], // Bottom, left to right
+  [10, 30],
+  [10, 50],
+  [10, 70], // Left, top to bottom
 ];
 
 export default function LetterBoxed() {
@@ -34,34 +49,59 @@ export default function LetterBoxed() {
     setError("");
   };
 
-  const reset = () => { clearSearch(); setLetters(Array(12).fill("")); };
+  const reset = () => {
+    clearSearch();
+    setLetters(Array(12).fill(""));
+  };
   const focusLetter = (index: number) => {
     inputs.current[index]?.focus();
     inputs.current[index]?.select();
   };
 
   const changeLetter = (index: number, value: string) => {
-    const next = value.replace(/[^a-z]/gi, "").slice(-1).toUpperCase();
+    const next = value
+      .replace(/[^a-z]/gi, "")
+      .slice(-1)
+      .toUpperCase();
     clearSearch();
-    setLetters(current => current.map((letter, i) => i === index ? next : letter));
+    setLetters((current) =>
+      current.map((letter, i) => (i === index ? next : letter)),
+    );
     if (next && index < 11) focusLetter(index + 1);
   };
 
-  const pasteLetters = (event: ClipboardEvent<HTMLInputElement>, index: number) => {
+  const pasteLetters = (
+    event: ClipboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
     event.preventDefault();
-    const pasted = event.clipboardData.getData("text").replace(/[^a-z]/gi, "").toUpperCase();
+    const pasted = event.clipboardData
+      .getData("text")
+      .replace(/[^a-z]/gi, "")
+      .toUpperCase();
     if (!pasted) return;
     clearSearch();
     const count = Math.min(pasted.length, 12 - index);
-    setLetters(current => current.map((letter, i) => i >= index && i < index + count ? pasted[i - index] : letter));
+    setLetters((current) =>
+      current.map((letter, i) =>
+        i >= index && i < index + count ? pasted[i - index] : letter,
+      ),
+    );
     focusLetter(Math.min(index + count, 11));
   };
 
   const handleKey = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
-    if ((event.key === "Backspace" && !letters[index]) || event.key === "ArrowLeft") {
-      if (index > 0) { event.preventDefault(); focusLetter(index - 1); }
+    if (
+      (event.key === "Backspace" && !letters[index]) ||
+      event.key === "ArrowLeft"
+    ) {
+      if (index > 0) {
+        event.preventDefault();
+        focusLetter(index - 1);
+      }
     } else if (event.key === "ArrowRight" && index < 11) {
-      event.preventDefault(); focusLetter(index + 1);
+      event.preventDefault();
+      focusLetter(index + 1);
     }
   };
 
@@ -69,13 +109,15 @@ export default function LetterBoxed() {
     event.preventDefault();
     if (loading) return;
     clearSearch();
-    if (letters.some(letter => !/^[A-Z]$/.test(letter))) {
+    if (letters.some((letter) => !/^[A-Z]$/.test(letter))) {
       setError("Fill all 12 tiles with three letters on each side.");
-      focusLetter(letters.findIndex(letter => !letter));
+      focusLetter(letters.findIndex((letter) => !letter));
       return;
     }
     if (new Set(letters).size !== 12) {
-      setError("Each letter should appear on only one tile. Check for duplicates.");
+      setError(
+        "Each letter should appear on only one tile. Check for duplicates.",
+      );
       return;
     }
 
@@ -89,23 +131,33 @@ export default function LetterBoxed() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           game: "letterboxed",
-          data: sideNames.map((_, side) => letters.slice(side * 3, side * 3 + 3).join("")),
+          data: sideNames.map((_, side) =>
+            letters.slice(side * 3, side * 3 + 3).join(""),
+          ),
         }),
         signal: controller.signal,
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(response.status === 400 && typeof data.error === "string"
-          ? data.error : "The solver is unavailable right now. Please try again.");
+        throw new Error(
+          response.status === 400 && typeof data.error === "string"
+            ? data.error
+            : "The solver is unavailable right now. Please try again.",
+        );
       }
       if (!Array.isArray(data.solutions) || typeof data.total !== "number") {
-        throw new Error("The solver returned an unexpected response. Please try again.");
+        throw new Error(
+          "The solver returned an unexpected response. Please try again.",
+        );
       }
       if (activeRequest.current === controller) setResult(data);
     } catch (problem) {
       if (activeRequest.current === controller && !controller.signal.aborted) {
-        setError(problem instanceof Error && problem.name !== "TypeError"
-          ? problem.message : "Could not reach the solver. Check your connection and try again.");
+        setError(
+          problem instanceof Error && problem.name !== "TypeError"
+            ? problem.message
+            : "Could not reach the solver. Check your connection and try again.",
+        );
       }
     } finally {
       if (activeRequest.current === controller) {
@@ -115,69 +167,174 @@ export default function LetterBoxed() {
     }
   };
 
-  return <>
-    <Navbar onRefresh={reset} gameUrl="https://www.nytimes.com/puzzles/letter-boxed" />
-    <GameShell index="08" title="Letter Boxed"
-      description="Twelve letters, four sides, two words. Find a linked pair that uses every letter without taking consecutive letters from the same side."
-      steps={["Enter three letters on each side", "Find a pair using all 12 letters", "Link the last letter to the next word"]}>
-      <form onSubmit={submit} noValidate className="letterboxed-form">
-        <fieldset aria-describedby="letterboxed-hint">
-          <legend className="label">Letters on the square</legend>
-          <div className="letterboxed-board">
-            <div className="letterboxed-square" aria-hidden="true" />
-            <span className="letterboxed-side-name side-top" aria-hidden="true">Top</span>
-            <span className="letterboxed-side-name side-right" aria-hidden="true">Right</span>
-            <span className="letterboxed-side-name side-bottom" aria-hidden="true">Bottom</span>
-            <span className="letterboxed-side-name side-left" aria-hidden="true">Left</span>
-            <div className="letterboxed-center" aria-hidden="true"><span>one square</span><em>two words</em></div>
-            {letters.map((letter, index) => <input key={index}
-              ref={element => { inputs.current[index] = element; }}
-              className="letterboxed-input" value={letter} maxLength={1}
-              aria-label={`${sideNames[Math.floor(index / 3)]} letter ${index % 3 + 1}`}
-              style={{ left: `${positions[index][0]}%`, top: `${positions[index][1]}%` }}
-              onChange={event => changeLetter(index, event.target.value)}
-              onPaste={event => pasteLetters(event, index)} onKeyDown={event => handleKey(event, index)}
-              onFocus={event => event.target.select()}
-              autoComplete="off" autoCorrect="off" autoCapitalize="characters" spellCheck={false} />)}
+  return (
+    <>
+      <Navbar
+        onRefresh={reset}
+        gameUrl="https://www.nytimes.com/puzzles/letter-boxed"
+      />
+      <GameShell
+        index="08"
+        title="Letter Boxed"
+        description="Twelve letters, four sides, two words. Find a linked pair that uses every letter without taking consecutive letters from the same side."
+        steps={[
+          "Enter three letters on each side",
+          "Find a pair using all 12 letters",
+          "Link the last letter to the next word",
+        ]}
+      >
+        <form onSubmit={submit} noValidate className="letterboxed-form">
+          <fieldset aria-describedby="letterboxed-hint">
+            <legend className="label">Letters on the square</legend>
+            <div className="letterboxed-board">
+              <div className="letterboxed-square" aria-hidden="true" />
+              <span
+                className="letterboxed-side-name side-top"
+                aria-hidden="true"
+              >
+                Top
+              </span>
+              <span
+                className="letterboxed-side-name side-right"
+                aria-hidden="true"
+              >
+                Right
+              </span>
+              <span
+                className="letterboxed-side-name side-bottom"
+                aria-hidden="true"
+              >
+                Bottom
+              </span>
+              <span
+                className="letterboxed-side-name side-left"
+                aria-hidden="true"
+              >
+                Left
+              </span>
+              <div className="letterboxed-center" aria-hidden="true">
+                <span>one square</span>
+                <em>two words</em>
+              </div>
+              {letters.map((letter, index) => (
+                <input
+                  key={index}
+                  ref={(element) => {
+                    inputs.current[index] = element;
+                  }}
+                  className="letterboxed-input"
+                  value={letter}
+                  maxLength={1}
+                  aria-label={`${sideNames[Math.floor(index / 3)]} letter ${(index % 3) + 1}`}
+                  style={{
+                    left: `${positions[index][0]}%`,
+                    top: `${positions[index][1]}%`,
+                  }}
+                  onChange={(event) => changeLetter(index, event.target.value)}
+                  onPaste={(event) => pasteLetters(event, index)}
+                  onKeyDown={(event) => handleKey(event, index)}
+                  onFocus={(event) => event.target.select()}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                />
+              ))}
+            </div>
+          </fieldset>
+          <p id="letterboxed-hint" className="letterboxed-note">
+            Enter or paste the letters: top, right, bottom, then left. Letters
+            can be reused within the solution.
+          </p>
+          <div className="letterboxed-actions">
+            <button
+              type="button"
+              className="letterboxed-example"
+              onClick={() => {
+                clearSearch();
+                setLetters([...example]);
+              }}
+            >
+              Try an example
+            </button>
+            <button type="submit" className="primary-button" disabled={loading}>
+              {loading ? "Searching…" : "Find two-word solutions →"}
+            </button>
           </div>
-        </fieldset>
-        <p id="letterboxed-hint" className="letterboxed-note">Enter or paste the letters: top, right, bottom, then left. Letters can be reused within the solution.</p>
-        <div className="letterboxed-actions">
-          <button type="button" className="letterboxed-example" onClick={() => {
-            clearSearch(); setLetters([...example]);
-          }}>Try an example</button>
-          <button type="submit" className="primary-button" disabled={loading}>
-            {loading ? "Searching…" : "Find two-word solutions →"}
-          </button>
+          {error && (
+            <p className="error-note letterboxed-error" role="alert">
+              {error}
+            </p>
+          )}
+        </form>
+
+        <div className="letterboxed-status" role="status">
+          {loading && (
+            <p className="letterboxed-note">
+              Checking words and matching pairs…
+            </p>
+          )}
+          {result && (
+            <p className="letterboxed-note">
+              {result.total === 0
+                ? "No two-word solution was found in our dictionary. Check the side assignments; this board may need more than two words."
+                : `${result.total} two-word ${result.total === 1 ? "solution" : "solutions"} found. Each pair covers all 12 letters.`}
+            </p>
+          )}
         </div>
-        {error && <p className="error-note letterboxed-error" role="alert">{error}</p>}
-      </form>
 
-      <div className="letterboxed-status" role="status">
-        {loading && <p className="letterboxed-note">Checking words and matching pairs…</p>}
-        {result && <p className="letterboxed-note">{result.total === 0
-          ? "No two-word solution was found in our dictionary. Check the side assignments; this board may need more than two words."
-          : `${result.total} two-word ${result.total === 1 ? "solution" : "solutions"} found. Each pair covers all 12 letters.`}</p>}
-      </div>
+        {result && result.solutions.length > 0 && (
+          <section
+            className="results"
+            aria-labelledby="letterboxed-results-title"
+          >
+            <div className="letterboxed-results-heading">
+              <h2 className="result-heading" id="letterboxed-results-title">
+                Two-word solutions
+              </h2>
+              <span className="eyebrow">12 / 12 letters</span>
+            </div>
+            <p className="letterboxed-note">
+              Shortest combined length first. The highlighted letter links the
+              words.
+            </p>
+            <ol className="letterboxed-pairs">
+              {result.solutions.map(([first, second], index) => (
+                <li key={`${first}-${second}`} className="letterboxed-pair">
+                  <div className="letterboxed-pair-meta">
+                    <span>Pair {String(index + 1).padStart(2, "0")}</span>
+                    <span>{first.length + second.length} letters</span>
+                  </div>
+                  <div className="letterboxed-word">
+                    <span className="sr-only">First word: </span>
+                    {first.slice(0, -1)}
+                    <mark>{first.slice(-1)}</mark>
+                  </div>
+                  <span className="letterboxed-link" aria-hidden="true">
+                    ↓
+                  </span>
+                  <div className="letterboxed-word">
+                    <span className="sr-only">Second word: </span>
+                    <mark>{second[0]}</mark>
+                    {second.slice(1)}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            {result.total > result.solutions.length && (
+              <p className="letterboxed-note">
+                Showing the {result.solutions.length} shortest pairs of{" "}
+                {result.total}.
+              </p>
+            )}
+          </section>
+        )}
 
-      {result && result.solutions.length > 0 && <section className="results" aria-labelledby="letterboxed-results-title">
-        <div className="letterboxed-results-heading">
-          <h2 className="result-heading" id="letterboxed-results-title">Two-word solutions</h2>
-          <span className="eyebrow">12 / 12 letters</span>
-        </div>
-        <p className="letterboxed-note">Shortest combined length first. The highlighted letter links the words.</p>
-        <ol className="letterboxed-pairs">
-          {result.solutions.map(([first, second], index) => <li key={`${first}-${second}`} className="letterboxed-pair">
-            <div className="letterboxed-pair-meta"><span>Pair {String(index + 1).padStart(2, "0")}</span><span>{first.length + second.length} letters</span></div>
-            <div className="letterboxed-word"><span className="sr-only">First word: </span>{first.slice(0, -1)}<mark>{first.slice(-1)}</mark></div>
-            <span className="letterboxed-link" aria-hidden="true">↓</span>
-            <div className="letterboxed-word"><span className="sr-only">Second word: </span><mark>{second[0]}</mark>{second.slice(1)}</div>
-          </li>)}
-        </ol>
-        {result.total > result.solutions.length && <p className="letterboxed-note">Showing the {result.solutions.length} shortest pairs of {result.total}.</p>}
-      </section>}
-
-      <p className="letterboxed-note letterboxed-dictionary">Words must be at least three letters long. Solutions use Wordbench’s dictionary; accepted words may differ from the NYT game.</p>
-    </GameShell>
-  </>;
+        <p className="letterboxed-note letterboxed-dictionary">
+          Words must be at least three letters long. Solutions use WordEngine’s
+          dictionary; accepted words may differ from the NYT game.
+        </p>
+      </GameShell>
+    </>
+  );
 }

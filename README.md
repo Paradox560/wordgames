@@ -1,10 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WordEngine
+
+Word-game solvers built with Next.js and Flask.
 
 ## Weaver solver
 
 Open `/weaver` to find a shortest word ladder between two four- or five-letter
 words. Every move substitutes exactly one letter; all words must belong to
-Wordbench's bundled `large.txt` dictionary. This dictionary is not guaranteed to
+WordEngine's bundled `large.txt` dictionary. This dictionary is not guaranteed to
 match the word list accepted by the original Weaver game.
 
 The Next.js frontend sends `POST /api/solve` with:
@@ -76,7 +78,13 @@ each contribute to its A=1 through Z=26 total (APPLE totals 50).
 Request:
 
 ```json
-{ "game": "numbword", "wordLength": 5, "targetScore": 50, "presentLetters": "AP", "absentLetters": "ST" }
+{
+  "game": "numbword",
+  "wordLength": 5,
+  "targetScore": 50,
+  "presentLetters": "AP",
+  "absentLetters": "ST"
+}
 ```
 
 `POST /api/solve` returns `words` (all matching words, alphabetically sorted and
