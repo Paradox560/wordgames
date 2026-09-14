@@ -2,6 +2,7 @@ from itertools import permutations
 from functools import lru_cache
 from .trie import Trie
 from .weaver import shortest_word_ladder
+from .letter_boxed import find_letter_boxed_pairs
 import os
 
 # Initialize the global trie
@@ -49,6 +50,10 @@ def generate_weaver_path(endpoints, word_length):
         normalized.append(word)
 
     return shortest_word_ladder(*normalized, weaver_dictionary(word_length))
+
+
+def generate_letter_boxed_pairs(sides):
+    return find_letter_boxed_pairs(sides, words)
 
 
 def generate_anagram_words(letters):

@@ -6,4 +6,5 @@ export const games = [
   { name: "Letter Loop", url: "/letterloop", mark: "E", meta: "8 letters" },
   { name: "Quartiles", url: "/quartiles", mark: "F", meta: "20 tiles" },
   { name: "Weaver", url: "/weaver", mark: "G", meta: "4 or 5 letters" },
+  { name: "Letter Boxed", url: "/letterboxed", mark: "H", meta: "12 letters · 2 words" },
 ];

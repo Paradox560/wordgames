@@ -38,6 +38,34 @@ Run the solver and API regression tests with:
 python3 -m unittest discover -s tests -v
 ```
 
+## Letter Boxed solver
+
+Open `/letterboxed` and enter three letters on each of the four sides. The input
+order is top, right, bottom, left; each side is read left-to-right or top-to-bottom.
+Typing advances to the next tile, and pasting can fill a side or the whole board.
+
+The solver finds exactly two-word solutions. Both words contain at least three
+letters and use only board letters; consecutive letters within each word must
+come from different sides. The first word's last letter must equal the second
+word's first letter, and the pair must cover all 12 letters. Nonconsecutive letter
+reuse is allowed. The linking letter is one shared step, not an invalid same-side
+move between words.
+
+Request:
+
+```json
+{ "game": "letterboxed", "data": ["BKT", "LSH", "AMP", "CIR"] }
+```
+
+`POST /api/solve` returns `solutions` (up to 20 ordered pairs, shortest combined
+length first, then alphabetically) and `total` (the count of all valid pairs).
+All returned pairs solve in two words; total letter count only breaks ties.
+An example valid pair is BLACKSMITH → HARP. No match returns
+`{"solutions": [], "total": 0}`; malformed sides or duplicate board letters return
+HTTP 400. Results use the bundled dictionary, which can differ from NYT's word list.
+
+The same backend setup and unittest command above run both new games.
+
 ## Getting Started
 
 First, run the development server:

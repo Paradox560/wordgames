@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from .solver import generate_anagram_words, generate_spelling_bee_words, generate_letter_loop_combinations, generate_quartiles_words, generate_word_hunt_words
-from .solver import generate_weaver_path
+from .solver import generate_weaver_path, generate_letter_boxed_pairs
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5000")
@@ -27,6 +27,13 @@ def solve():
             except ValueError as error:
                 return jsonify({"error": str(error)}), 400
             return jsonify({"path": path, "moves": len(path) - 1 if path else None})
+
+        if game == "letterboxed":
+            try:
+                result = generate_letter_boxed_pairs(data.get("data"))
+            except ValueError as error:
+                return jsonify({"error": str(error)}), 400
+            return jsonify(result)
 
         letters = data.get("data", [])
         letters = [letter.lower() for letter in letters]
