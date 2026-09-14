@@ -145,3 +145,14 @@ def generate_word_hunt_words(letters):
         found_words[len(word)].append(word)
 
     return found_words
+
+def generate_wordle_words(array):
+    # Even indices are the words
+    words = [array[i] for i in range(0, len(array), 2)]
+
+    # Odd indices are the associated colors
+    colors = [array[i] for i in range(1, len(array), 2)]
+
+    # Create list of banned letters
+    unusable_letters = []
+    

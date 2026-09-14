@@ -1,51 +1,35 @@
 import Link from 'next/link';
+import Brand from './components/brand';
 
-type Tile = {
-  word: string;
-  url: string;
-  icon: string;
-};
-
-const games: Tile[] = [
-  { word: "Spelling Bee", url: "/spellingbee", icon: "🐝" },
-  { word: "Word Hunt", url: "/wordhunt", icon: "🎯" },
-  { word: "Anagrams", url: "/anagrams", icon: "🌀" },
-  // { word: "Wordle", url: "/wordle", icon: "🟩" },
-  { word: "Letter Loop", url: "/letterloop", icon: "🔄" },
-  { word: "Quartiles", url: "/quartiles", icon: "🧩"}
-]
+const games = [
+  { name: "Spelling Bee", url: "/spellingbee", mark: "A", meta: "7 letters" },
+  { name: "Word Hunt", url: "/wordhunt", mark: "B", meta: "3×3 — 5×5" },
+  { name: "Anagrams", url: "/anagrams", mark: "C", meta: "6 — 8 letters" },
+  { name: "Wordle", url: "/wordle", mark: "D", meta: "5 letters" },
+  { name: "Letter Loop", url: "/letterloop", mark: "E", meta: "8 letters" },
+  { name: "Quartiles", url: "/quartiles", mark: "F", meta: "20 tiles" },
+];
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-500 to-blue-500 p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-16 space-y-4">
-          <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
-            Word Games Solver
-          </h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            Select a game below to start solving puzzles and expanding your vocabulary
-          </p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
-          {games.map((game, index) => (
-            <Link key={index} href={game.url}>
-              <div className="group h-64 relative overflow-hidden rounded-2xl backdrop-blur-lg bg-white/20 
-                border border-white/30 shadow-xl transition-all duration-300 
-                hover:scale-105 hover:bg-white/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 
-                  group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="p-8 h-full flex flex-col items-center justify-center space-y-4">
-                  <span className="text-5xl">{game.icon}</span>
-                  <h2 className="text-2xl font-bold text-white text-center">{game.word}</h2>
-                  <span className="text-white/70 text-sm">Click to solve →</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+  return <main>
+    <header className="border-b border-[#c9c0ae]">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5">
+        <Brand />
+        <p className="hidden text-xs font-bold uppercase tracking-[.13em] text-[#68685f] sm:block">The solver's desk · Vol. 01</p>
       </div>
-    </div>
-  );
+    </header>
+    <section className="border-b border-[#c9c0ae] bg-[#e8dfcd]/45">
+      <div className="mx-auto grid max-w-7xl md:grid-cols-2 lg:grid-cols-3">
+        {games.map(game => <Link key={game.url} href={game.url} className="group relative min-h-[210px] border-b border-[#c9c0ae] p-7 transition-colors hover:bg-[#fffdf7] md:border-r lg:[&:nth-child(3n)]:border-r-0">
+          <div className="flex items-start justify-between">
+            <span className="grid h-10 w-10 place-items-center border border-[#928873] font-mono text-sm font-bold transition-all group-hover:border-[#234d3c] group-hover:bg-[#234d3c] group-hover:text-white">{game.mark}</span>
+            <span className="text-xs font-bold uppercase tracking-[.11em] text-[#68685f]">{game.meta}</span>
+          </div>
+          <h2 className="wordmark mt-10 text-3xl">{game.name}</h2>
+          <span className="absolute bottom-7 right-7 text-xl transition-transform group-hover:translate-x-1">→</span>
+        </Link>)}
+      </div>
+    </section>
+    <footer className="mx-auto flex max-w-7xl flex-col gap-2 px-5 py-8 text-xs text-[#68685f] sm:flex-row sm:justify-between"><span>Made for the next clue.</span><span>Dictionary open. Pencil ready.</span></footer>
+  </main>;
 }

@@ -1,0 +1,1 @@
+export default function Brand(){return <span className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center bg-[#1d211d] font-mono text-sm font-black text-[#f3efe4]">WB</span><span className="wordmark text-xl font-bold">Wordbench</span></span>}

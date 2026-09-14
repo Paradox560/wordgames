@@ -1,149 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import GameShell from "../components/game-shell";
 import Navbar from "../components/navbar";
 
+const makeGrid = () => Array.from({ length: 5 }, () => Array<string>(4).fill(""));
+
 export default function Quartiles() {
-  const [gridSize, setGridSize] = useState({ rows: 5, cols: 4 });
-  const [letters, setLetters] = useState<string[][]>([]);
-  const [submittedLetters, setSubmittedLetters] = useState<string[]>([]);
-  const [result, setResult] = useState<[string, string?][] | null>(null);
+  const [letters, setLetters] = useState<string[][]>(makeGrid);
+  const [result, setResult] = useState<string[][] | null>(null);
 
-  useEffect(() => {
-    const initialLetters = Array.from({ length: gridSize.rows }, () =>
-      Array(gridSize.cols).fill("")
-    );
-    setLetters(initialLetters);
-  }, [gridSize]);
-
-  const handleLetterChange = (row: number, col: number, value: string) => {
-    const updatedLetters = [...letters];
-    updatedLetters[row][col] = value;
-    setLetters(updatedLetters);
+  const reset = () => { setLetters(makeGrid()); setResult(null); };
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const response = await fetch("/api/solve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: letters.flat(), game: "quartiles" }),
+    });
+    const data = await response.json();
+    setResult(data.possible_words);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const flatLetters = letters.flat();
-    setSubmittedLetters(flatLetters);
-
-    try {
-      const response = await fetch("/api/solve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: flatLetters, game: "quartiles" }),
-      });
-
-      const data = await response.json();
-      console.log(data);
-      setResult(data.possible_words);
-    } catch (error) {
-      console.error("Error fetching quartiles words:", error);
-    }
-  };
-
-  const refreshLetters = () => {
-    const initialLetters = Array.from({ length: gridSize.rows }, () =>
-      Array(gridSize.cols).fill("")
-    );
-    setLetters(initialLetters);
-    setSubmittedLetters([]);
-    setResult(null);
-  };
-
-  return (
-    <>
-      <Navbar
-        onRefresh={refreshLetters}
-        gameUrl="https://support.apple.com/guide/iphone/solve-quartiles-puzzles-iph9ccdd1bab/ios"
-      />
-      <div className="min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-500 pt-20 pb-12">
-        <div className="max-w-2xl mx-auto p-12 backdrop-blur-lg bg-white/30 rounded-2xl shadow-xl space-y-8">
-          <h1 className="text-4xl font-extrabold text-center text-white drop-shadow-lg">
-            Quartiles Grid
-          </h1>
-
-          <form onSubmit={handleSubmit}>
-            <div
-              className="grid gap-6 p-8 bg-white/20 rounded-xl backdrop-filter backdrop-blur-lg"
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${gridSize.cols}, 1fr)`,
-                width: "fit-content",
-                margin: "0 auto",
-              }}
-            >
-              {letters.map((row, rowIndex) =>
-                row.map((letter, colIndex) => (
-                  <input
-                    key={`${rowIndex}-${colIndex}`}
-                    type="text"
-                    maxLength={5}
-                    value={letter}
-                    onChange={(e) =>
-                      handleLetterChange(rowIndex, colIndex, e.target.value)
-                    }
-                    className="w-24 h-14 p-3 border-2 border-white/50 rounded-lg text-center 
-                      text-xl font-bold text-white bg-white/10 
-                      focus:outline-none focus:ring-2 focus:ring-white 
-                      focus:border-transparent transition-all duration-200 
-                      placeholder-white/50 lowercase"
-                  />
-                ))
-              )}
-            </div>
-
-            <div className="mt-8 text-center">
-              <button
-                type="submit"
-                className="px-8 py-3 bg-white/20 rounded-xl text-white font-bold
-                  border-2 border-white/50 hover:bg-white/30 
-                  transition-all duration-200"
-              >
-                Find Words
-              </button>
-            </div>
-          </form>
-
-          {/* Display submitted letters in a 2D grid format */}
-          {submittedLetters.length > 0 && (
-            <div className="mt-6">
-              <h2 className="text-2xl text-center font-medium">
-                Submitted Letters:
-              </h2>
-              <div className="mt-4 grid grid-cols-4 gap-4">
-                {submittedLetters.map((word, index) => (
-                  <div
-                    key={index}
-                    className="p-2 bg-white/10 rounded-lg text-center text-white"
-                  >
-                    {word}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Display result from API */}
-          {result && result.length > 0 && (
-            <div className="mt-6">
-              <h2 className="text-2xl text-center font-medium">
-                Possible Words:
-              </h2>
-              <div className="mt-4 grid grid-cols-1 gap-4">
-                {result.map((words, index) => (
-                  <div
-                    key={index}
-                    className="p-2 bg-white/10 rounded-lg text-center text-white"
-                  >
-                    {words.join(", ")}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+  return <>
+    <Navbar onRefresh={reset} gameUrl="https://support.apple.com/guide/iphone/solve-quartiles-puzzles-iph9ccdd1bab/ios" />
+    <GameShell index="06" title="Quartiles" description="Transcribe each fragment in reading order. Then combine the little pieces into complete words.">
+      <form onSubmit={submit}>
+        <div className="mx-auto grid w-fit grid-cols-4 gap-2 border border-[#c9c0ae] bg-[#e8dfcd]/55 p-4">
+          {letters.map((row, rowIndex) => row.map((letter, columnIndex) => <input key={`${rowIndex}-${columnIndex}`} aria-label={`Fragment row ${rowIndex + 1}, column ${columnIndex + 1}`} maxLength={5} value={letter} onChange={event => setLetters(current => current.map((currentRow, r) => r === rowIndex ? currentRow.map((value, c) => c === columnIndex ? event.target.value.toLowerCase() : value) : currentRow))} className="h-14 w-24 border border-[#a59c89] bg-[#fffdf7] px-1 text-center font-mono text-sm font-bold lowercase shadow-[2px_3px_0_rgba(73,60,39,.14)] outline-none focus:border-[#234d3c] focus:ring-2 focus:ring-[#234d3c]/20" />))}
         </div>
-      </div>
-    </>
-  );
+        <div className="mt-8 flex justify-end"><button className="primary-button">Assemble words →</button></div>
+      </form>
+      {result && result.length > 0 && <div className="results"><h2 className="result-heading">Complete words</h2><div className="mt-4 grid gap-2">{result.map((words, index) => <div key={index} className="word-chip text-left">{words.join(" + ")}</div>)}</div></div>}
+    </GameShell>
+  </>;
 }
