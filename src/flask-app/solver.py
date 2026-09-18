@@ -4,6 +4,7 @@ from .trie import Trie
 from .weaver import shortest_word_ladder
 from .letter_boxed import find_letter_boxed_pairs
 from .numbword import find_numbword_words
+from .wordle import find_wordle_words
 import os
 
 # Initialize the global trie
@@ -185,12 +186,18 @@ def generate_word_hunt_words(letters):
 
     return found_words
 
-def generate_wordle_words(array):
-    # Even indices are the words
-    words = [array[i] for i in range(0, len(array), 2)]
+@lru_cache(maxsize=2)
+def wordle_dictionary(word_list):
+    path = os.path.join(os.path.dirname(__file__), '../dictionaries/solution_list.txt')
+    with open(path, 'r') as file:
+        entries = [word.strip() for word in file]
+    if word_list == "extended":
+        entries.extend(five_letter_words)
+    return frozenset(word.lower() for word in entries
+                     if len(word) == 5 and word.isascii() and word.isalpha())
 
-    # Odd indices are the associated colors
-    colors = [array[i] for i in range(1, len(array), 2)]
 
-    # Create list of banned letters
-    unusable_letters = []
+def generate_wordle_words(guesses, word_list="answers"):
+    if word_list not in ("answers", "extended"):
+        raise ValueError("Choose the answer list or the extended word list.")
+    return find_wordle_words(guesses, wordle_dictionary(word_list))

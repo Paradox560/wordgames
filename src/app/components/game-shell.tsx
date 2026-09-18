@@ -16,7 +16,7 @@ export default function GameShell({
   return <main className="game-page">
     <div className="game-layout">
       <aside className="game-intro">
-        <p className="eyebrow">Solver Engine {index}</p>
+        <p className="eyebrow">WordEngine {index}</p>
         <h1 className="game-title">{title}</h1>
         <p className="game-copy">{description}</p>
         <div className="step-list">

@@ -97,7 +97,44 @@ Results use the bundled dictionary, which can differ from Numbword's word list.
 The page shows 48 results at a time with an option to reveal more, and displays
 each word's letter-by-letter arithmetic.
 
-The same backend setup and unittest command above run all three new games.
+## Wordle candidate solver
+
+Open `/wordle` to record up to six five-letter guesses. Type or paste words into
+the large tiles; use the separate labeled buttons to set each clue to gray,
+yellow, or green. With a letter focused, the shortcuts are `0` for gray, `1` for
+yellow, and `2` for green. New or changed letters start unmarked so unknown clues
+are not silently treated as gray. Adding or removing a row preserves other guesses;
+completely empty rows are ignored when searching, but partial rows must be completed.
+
+The solver recreates the feedback for each candidate against every guess: green
+matches consume letters first, then yellow matches are allocated left-to-right.
+This respects exact positions, excluded positions, and the minimum/maximum counts
+implied by duplicate letters. A gray extra copy does not rule out a letter that
+also appears green or yellow in that guess.
+
+Request:
+
+```json
+{
+  "game": "wordle",
+  "wordList": "answers",
+  "guesses": [
+    { "word": "ALLEY", "colors": ["green", "yellow", "gray", "yellow", "gray"] }
+  ]
+}
+```
+
+`POST /api/solve` returns all matching `words` in alphabetical order and `total`.
+The page shows 60 candidates at a time, with a button to reveal more. Invalid
+inputs (including missing clue colors) return HTTP 400. Inconsistent clues or no
+dictionary matches return `{"words": [], "total": 0}`.
+
+`wordList` defaults to `answers`, the bundled `solution_list.txt` answer bank.
+`extended` adds `five_letter_words.txt`. These are static dictionaries, not a live
+NYT answer list; past answers are deliberately retained. Guesses themselves need
+not be in the candidate list, but must contain exactly five ASCII letters.
+
+The same backend setup and unittest command above cover all solvers.
 
 ## Getting Started
 

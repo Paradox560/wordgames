@@ -14,12 +14,12 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .site-shell { min-height:100vh; background:linear-gradient(90deg,transparent calc(50% - 640px),rgba(105,89,58,.10) calc(50% - 640px),rgba(105,89,58,.10) calc(50% - 639px),transparent calc(50% - 639px),transparent calc(50% + 639px),rgba(105,89,58,.10) calc(50% + 639px),rgba(105,89,58,.10) calc(50% + 640px),transparent calc(50% + 640px)); }
 .game-page { min-height:100vh; padding:7.5rem 1.25rem 4rem; }
 .game-layout { width:min(100%,68rem); margin:0 auto; display:grid; grid-template-columns:17rem minmax(0,1fr); gap:3rem; align-items:start; }
-.game-intro { position:sticky; top:7.5rem; }
-.game-title { margin:.6rem 0 1rem; font-family:Georgia,'Times New Roman',serif; font-size:clamp(2.6rem,5vw,4.8rem); font-weight:400; line-height:.92; letter-spacing:-.055em; }
+.game-intro { position:sticky; top:7.5rem; min-width:0; container-type:inline-size; }
+.game-title { max-width:100%; margin:.6rem 0 1rem; font-family:Georgia,'Times New Roman',serif; font-size:3rem; font-size:clamp(2.4rem,18cqi,3.4rem); font-weight:400; line-height:1; letter-spacing:-.055em; overflow-wrap:anywhere; }
 .game-copy { color:var(--muted); line-height:1.65; font-size:.96rem; }
 .step-list { margin-top:2rem; padding-top:1.25rem; border-top:1px solid var(--line); display:grid; gap:.8rem; color:var(--muted); font-size:.78rem; }
 .step-list span { display:inline-flex; width:1.4rem; height:1.4rem; align-items:center; justify-content:center; margin-right:.55rem; border:1px solid var(--line); border-radius:50%; color:var(--ink); font-weight:700; }
-.workbench { background:rgba(255,252,244,.74); border:1px solid var(--line); box-shadow:8px 8px 0 rgba(54,48,36,.08); }
+.workbench { min-width:0; background:rgba(255,252,244,.74); border:1px solid var(--line); box-shadow:8px 8px 0 rgba(54,48,36,.08); }
 .workbench-head { padding:1.05rem 1.25rem; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:1rem; }
 .workbench-body { padding:clamp(1.25rem,4vw,2.5rem); }
 .label { display:block; margin-bottom:.55rem; font-size:.72rem; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
@@ -63,5 +63,5 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .weaver-tile-changed { background:var(--mustard); border-color:#a57c27; border-bottom-width:3px; }
 .weaver-dictionary { margin-top:1.75rem; padding-top:1rem; border-top:1px solid var(--line); }
 @media (max-width:480px) { .weaver-endpoints{grid-template-columns:1fr}.weaver-rung{gap:.5rem}.weaver-rung-label{width:3.5rem;font-size:.6rem}.weaver-tiles{gap:.3rem}.weaver-tile{width:clamp(1.7rem,7vw,2.8rem);height:2.35rem;font-size:1rem} }
-@media (max-width:760px) { .game-page{padding-top:6.5rem}.game-layout{grid-template-columns:1fr;gap:1.75rem}.game-intro{position:static}.game-title{font-size:3.2rem}.step-list{display:none}.workbench-body{overflow-x:auto}.word-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tile-input{width:3.15rem;height:3.15rem} }
+@media (max-width:760px) { .game-page{padding-top:6.5rem}.game-layout{grid-template-columns:1fr;gap:1.75rem}.game-intro{position:static}.step-list{display:none}.workbench-body{overflow-x:auto}.word-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tile-input{width:3.15rem;height:3.15rem} }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important} }
