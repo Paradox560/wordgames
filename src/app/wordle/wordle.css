@@ -27,7 +27,6 @@
 .wordle-search-options { display:flex; flex-wrap:wrap; align-items:flex-end; gap:1rem; margin-top:.5rem; }
 .wordle-search-options > div { flex:1 1 12rem; min-width:0; }
 .wordle-search-options .primary-button { flex:1 1 12rem; }
-.wordle-form .primary-button:disabled { opacity:.7; cursor:wait; transform:none; box-shadow:none; }
 .wordle-error { margin:0; }
 .wordle-status:not(:empty) { margin-top:1.5rem; }
 .wordle-results-heading { align-items:baseline; }

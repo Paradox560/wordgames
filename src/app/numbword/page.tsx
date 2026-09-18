@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import GameShell from "../components/game-shell";
 import Navbar from "../components/navbar";
+import { numbwordComplete } from "../lib/tile-input";
 import "./numbword.css";
 
 type WordLength = 4 | 5 | 6;
@@ -30,6 +31,7 @@ export default function Numbword() {
   const targetInput = useRef<HTMLInputElement>(null);
   const presentInput = useRef<HTMLInputElement>(null);
   const absentInput = useRef<HTMLInputElement>(null);
+  const canSubmit = numbwordComplete(wordLength, targetScore, presentLetters, absentLetters);
 
   useEffect(() => () => activeRequest.current?.abort(), []);
 
@@ -51,6 +53,7 @@ export default function Numbword() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading || !canSubmit) return;
     clearSearch();
     const score = Number(targetScore);
     if (
@@ -200,7 +203,7 @@ export default function Numbword() {
                 required
               />
               <p id="numbword-total-hint" className="numbword-note">
-                A = 1 · Z = 26
+                A = 1 · Z = 26. Total: {wordLength}–{26 * wordLength}.
               </p>
             </div>
           </div>
@@ -271,7 +274,7 @@ export default function Numbword() {
             </div>
             <p id="numbword-presence-hint" className="numbword-note">
               Letters can be anywhere. A blue clue means at least one copy, not
-              a fixed position or an exact count.
+              a fixed position or an exact count. Use A–Z only, with no letter in both fields and at most {wordLength} different blue letters.
             </p>
           </fieldset>
 
@@ -307,7 +310,7 @@ export default function Numbword() {
             >
               Try an example
             </button>
-            <button type="submit" className="primary-button" disabled={loading}>
+            <button type="submit" className="primary-button" disabled={loading || !canSubmit}>
               {loading ? "Searching…" : "Find possible words →"}
             </button>
           </div>

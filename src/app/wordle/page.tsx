@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import Navbar from "../components/navbar";
 import GameShell from "../components/game-shell";
+import { nextTile, pasteWordle, previousEmptyTile, wordleComplete } from "../lib/tile-input";
 import "./wordle.css";
 
 type Clue = "unknown" | "gray" | "yellow" | "green";
@@ -25,6 +26,7 @@ export default function Wordle() {
   const inputs = useRef<Record<string, HTMLInputElement | null>>({});
   const clueButtons = useRef<Record<string, HTMLButtonElement | null>>({});
   const activeRequest = useRef<AbortController | null>(null);
+  const canSubmit = wordleComplete(rows);
 
   useEffect(() => () => activeRequest.current?.abort(), []);
 
@@ -38,6 +40,10 @@ export default function Wordle() {
     setRows([blankRow(nextRowId.current++)]);
   };
   const focusTile = (id: number, column: number) => inputs.current[`${id}-${column}`]?.focus();
+  const focusIndex = (index: number) => {
+    const row = rows[Math.floor(index / 5)];
+    if (row) focusTile(row.id, index % 5);
+  };
 
   const setLetter = (id: number, column: number, value: string) => {
     if (value && !/^[a-zA-Z]$/.test(value)) return;
@@ -48,7 +54,7 @@ export default function Wordle() {
       letters: row.letters.map((item, i) => i === column ? letter : item),
       colors: row.colors.map((color, i) => i === column && row.letters[i] !== letter ? "unknown" : color),
     }));
-    if (letter && column < 4) focusTile(id, column + 1);
+    if (letter) focusIndex(nextTile(rows.findIndex(row => row.id === id) * 5 + column, rows.length * 5));
   };
   const setClue = (id: number, column: number, color: Clue) => {
     clearSearch();
@@ -57,14 +63,19 @@ export default function Wordle() {
     }));
   };
   const handleKey = (event: KeyboardEvent<HTMLInputElement>, row: GuessRow, column: number) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const index = rows.findIndex(item => item.id === row.id) * 5 + column;
+    const previous = previousEmptyTile(rows.flatMap(item => item.letters), index);
     const shortcuts: Record<string, Clue> = { "0": "gray", "1": "yellow", "2": "green" };
     if (shortcuts[event.key]) {
       event.preventDefault();
       if (row.letters[column]) setClue(row.id, column, shortcuts[event.key]);
-    } else if ((event.key === "Backspace" && !row.letters[column]) || event.key === "ArrowLeft") {
-      if (column > 0) { event.preventDefault(); focusTile(row.id, column - 1); }
-    } else if (event.key === "ArrowRight" && column < 4) {
-      event.preventDefault(); focusTile(row.id, column + 1);
+    } else if (event.key === "Backspace" && previous !== null) {
+      event.preventDefault(); focusIndex(previous);
+    } else if (event.key === "ArrowLeft" && index > 0) {
+      event.preventDefault(); focusIndex(index - 1);
+    } else if (event.key === "ArrowRight" && index < rows.length * 5 - 1) {
+      event.preventDefault(); focusIndex(index + 1);
     }
   };
   const addRow = () => {
@@ -77,6 +88,7 @@ export default function Wordle() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading || !canSubmit) return;
     clearSearch();
     const guesses = [];
     for (const [index, row] of rows.entries()) {
@@ -142,7 +154,7 @@ export default function Wordle() {
           <h2 className="label">Your guesses</h2>
           <span className="wordle-note">{rows.length} / 6 rows</span>
         </div>
-        <p className="wordle-note" id="wordle-input-hint">Type or paste a guess into the large tiles. The buttons below change colors; clicking a letter only edits it.</p>
+        <p className="wordle-note" id="wordle-input-hint">Type a guess or paste up to six full guesses. Set every clue color to enable search. The buttons below change colors; clicking a letter only edits it.</p>
         <div className="wordle-board">
           {rows.map((row, rowIndex) => <fieldset key={row.id} className="wordle-row">
             <legend className="sr-only">Guess {rowIndex + 1}</legend>
@@ -177,24 +189,17 @@ export default function Wordle() {
                     onKeyDown={event => handleKey(event, row, column)}
                     onPaste={event => {
                       event.preventDefault();
-                      const text = event.clipboardData.getData("text").trim();
-                      if (!/^[a-zA-Z]{1,5}$/.test(text)) {
-                        setError("Paste one word of up to five letters (A–Z).");
-                        return;
+                      try {
+                        const pasted = pasteWordle(rows.map(item => item.letters), rowIndex, column, event.clipboardData.getData("text"));
+                        const nextRows = pasted.values.map((letters, index) => ({
+                          id: rows[index]?.id ?? nextRowId.current++, letters,
+                          colors: letters.map((value, i) => value && value === rows[index]?.letters[i] ? rows[index].colors[i] : "unknown") as Clue[],
+                        }));
+                        clearSearch(); setRows(nextRows);
+                        requestAnimationFrame(() => focusTile(nextRows[pasted.row].id, pasted.column));
+                      } catch (problem) {
+                        setError(problem instanceof Error ? problem.message : "Could not paste those guesses.");
                       }
-                      const start = text.length === 5 ? 0 : column;
-                      if (start + text.length > 5) {
-                        setError("That text will not fit. Paste a full five-letter word or start at an earlier tile.");
-                        return;
-                      }
-                      clearSearch();
-                      const pasted = text.toUpperCase();
-                      setRows(old => old.map(item => item.id !== row.id ? item : {
-                        ...item,
-                        letters: item.letters.map((value, i) => i >= start && i < start + pasted.length ? pasted[i - start] : value),
-                        colors: item.colors.map((value, i) => i >= start && i < start + pasted.length && item.letters[i] !== pasted[i - start] ? "unknown" : value),
-                      }));
-                      focusTile(row.id, Math.min(start + pasted.length, 4));
                     }} />
                   <button type="button" ref={element => { clueButtons.current[key] = element; }}
                     disabled={!letter} className={`wordle-color-button wordle-${color}`}
@@ -228,7 +233,7 @@ export default function Wordle() {
               <option value="extended">Extended word list</option>
             </select>
           </div>
-          <button type="submit" className="primary-button" disabled={loading}>
+          <button type="submit" className="primary-button" disabled={loading || !canSubmit}>
             {loading ? "Searching…" : "Find candidates →"}
           </button>
         </div>

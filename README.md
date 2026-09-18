@@ -2,6 +2,29 @@
 
 Word-game solvers built with Next.js and Flask.
 
+## Puzzle input
+
+Single-letter tiles advance automatically, including across grid rows. Backspace
+on an empty tile moves to the previous tile without erasing it. Focusing a tile
+selects its contents for easy replacement. Arrow keys navigate single-letter tiles.
+
+Paste a full rack/board from any tile to fill it from the beginning, a whole row
+to fill the focused row, or a shorter sequence to fill from the focused tile.
+Spaces, newlines, tabs, commas, semicolons, and pipes are accepted as separators.
+Invalid or overflowing pastes are rejected without partially changing the board.
+Spelling Bee paste order is center first, then clockwise from the top; Letter
+Boxed uses top, right, bottom, left. Quartiles keeps fragments together: separate
+them with spaces and use Tab or Space to move after shorter fragments. Weaver
+also accepts both words pasted together. Wordle accepts up to six pasted guesses,
+creating rows as needed; a multi-guess paste replaces the existing board.
+
+Search is disabled until required inputs are complete and while a request is
+running. Wordle requires colors for every populated guess (empty rows remain
+optional); Numbword requires a valid total, with letter clues still optional.
+Editing or clearing inputs cancels outdated requests and removes old results.
+
+Run input parsing, navigation, and completion checks with `npm run test:inputs`.
+
 ## Weaver solver
 
 Open `/weaver` to find a shortest word ladder between two four- or five-letter

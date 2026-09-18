@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:inputs": "tsc --target ES2017 --module commonjs --skipLibCheck --outDir .test-build src/app/lib/tile-input.ts && node --test tests/tile-input.test.cjs"
   },
   "dependencies": {
     "react": "^19.0.0",

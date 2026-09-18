@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import GameShell from "../components/game-shell";
 import Navbar from "../components/navbar";
+import useTileInputs from "../components/use-tile-inputs";
 
 type WordLength = 4 | 5;
 type Ladder = { path: string[]; moves: number | null };
@@ -30,13 +31,19 @@ export default function Weaver() {
 
   const reset = () => {
     clearSearch();
+    tileInputs.clearError();
     setStart("");
     setEnd("");
   };
+  const tileInputs = useTileInputs([start, end], ([first, last]) => {
+    clearSearch(); setStart(first); setEnd(last);
+  }, { minLength: wordLength, maxLength: wordLength, rowLength: 2 });
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (loading || !tileInputs.complete) return;
     clearSearch();
+    tileInputs.clearError();
     const validWord = new RegExp(`^[a-zA-Z]{${wordLength}}$`);
     if (!validWord.test(start.trim()) || !validWord.test(end.trim())) {
       setError(`Enter two ${wordLength}-letter words using A–Z.`);
@@ -134,11 +141,7 @@ export default function Weaver() {
               <input
                 id="weaver-start"
                 className="field weaver-word-field"
-                value={start}
-                onChange={(event) => {
-                  clearSearch();
-                  setStart(event.target.value.toUpperCase());
-                }}
+                {...tileInputs.bind(0)}
                 placeholder={examples[wordLength][0]}
                 maxLength={wordLength}
                 autoComplete="off"
@@ -155,11 +158,7 @@ export default function Weaver() {
               <input
                 id="weaver-end"
                 className="field weaver-word-field"
-                value={end}
-                onChange={(event) => {
-                  clearSearch();
-                  setEnd(event.target.value.toUpperCase());
-                }}
+                {...tileInputs.bind(1)}
                 placeholder={examples[wordLength][1]}
                 maxLength={wordLength}
                 autoComplete="off"
@@ -171,7 +170,7 @@ export default function Weaver() {
             </div>
           </div>
           <p id="weaver-input-hint" className="weaver-note">
-            Each step changes one letter. Words stay the same length.
+            Enter two {wordLength}-letter words, or paste both separated by a space. Each step changes one letter.
           </p>
 
           <div className="weaver-actions">
@@ -180,19 +179,20 @@ export default function Weaver() {
               className="weaver-example"
               onClick={() => {
                 clearSearch();
+                tileInputs.clearError();
                 setStart(examples[wordLength][0]);
                 setEnd(examples[wordLength][1]);
               }}
             >
               Try an example
             </button>
-            <button type="submit" className="primary-button" disabled={loading}>
+            <button type="submit" className="primary-button" disabled={loading || !tileInputs.complete}>
               {loading ? "Searching…" : "Find shortest path →"}
             </button>
           </div>
-          {error && (
+          {(error || tileInputs.error) && (
             <p role="alert" className="error-note weaver-error">
-              {error}
+              {tileInputs.error || error}
             </p>
           )}
         </form>

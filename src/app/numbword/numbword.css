@@ -29,7 +29,6 @@
 .numbword-alphabet span span { font-size:.65rem; color:var(--muted); }
 .numbword-actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1.25rem; }
 .numbword-text-button { font-size:.78rem; text-decoration:underline; text-underline-offset:4px; }
-.numbword-form .primary-button:disabled { opacity:.7; cursor:wait; transform:none; box-shadow:none; }
 .numbword-error { margin:0; }
 .numbword-status:not(:empty) { margin-top:1.5rem; }
 .numbword-results-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.5rem; }

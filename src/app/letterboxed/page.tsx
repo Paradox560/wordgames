@@ -5,11 +5,10 @@ import {
   useRef,
   useState,
   type FormEvent,
-  type KeyboardEvent,
-  type ClipboardEvent,
 } from "react";
 import GameShell from "../components/game-shell";
 import Navbar from "../components/navbar";
+import useTileInputs from "../components/use-tile-inputs";
 import "./letterboxed.css";
 
 type PairResult = { solutions: [string, string][]; total: number };
@@ -37,7 +36,6 @@ export default function LetterBoxed() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const activeRequest = useRef<AbortController | null>(null);
-  const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => () => activeRequest.current?.abort(), []);
 
@@ -51,67 +49,19 @@ export default function LetterBoxed() {
 
   const reset = () => {
     clearSearch();
+    tileInputs.clearError();
     setLetters(Array(12).fill(""));
   };
-  const focusLetter = (index: number) => {
-    inputs.current[index]?.focus();
-    inputs.current[index]?.select();
-  };
-
-  const changeLetter = (index: number, value: string) => {
-    const next = value
-      .replace(/[^a-z]/gi, "")
-      .slice(-1)
-      .toUpperCase();
-    clearSearch();
-    setLetters((current) =>
-      current.map((letter, i) => (i === index ? next : letter)),
-    );
-    if (next && index < 11) focusLetter(index + 1);
-  };
-
-  const pasteLetters = (
-    event: ClipboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    event.preventDefault();
-    const pasted = event.clipboardData
-      .getData("text")
-      .replace(/[^a-z]/gi, "")
-      .toUpperCase();
-    if (!pasted) return;
-    clearSearch();
-    const count = Math.min(pasted.length, 12 - index);
-    setLetters((current) =>
-      current.map((letter, i) =>
-        i >= index && i < index + count ? pasted[i - index] : letter,
-      ),
-    );
-    focusLetter(Math.min(index + count, 11));
-  };
-
-  const handleKey = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (
-      (event.key === "Backspace" && !letters[index]) ||
-      event.key === "ArrowLeft"
-    ) {
-      if (index > 0) {
-        event.preventDefault();
-        focusLetter(index - 1);
-      }
-    } else if (event.key === "ArrowRight" && index < 11) {
-      event.preventDefault();
-      focusLetter(index + 1);
-    }
-  };
+  const tileInputs = useTileInputs(letters, next => { clearSearch(); setLetters(next); }, { unique: true, rowLength: 3 });
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (loading) return;
+    if (loading || !tileInputs.complete) return;
     clearSearch();
+    tileInputs.clearError();
     if (letters.some((letter) => !/^[A-Z]$/.test(letter))) {
       setError("Fill all 12 tiles with three letters on each side.");
-      focusLetter(letters.findIndex((letter) => !letter));
+      tileInputs.focus(letters.findIndex((letter) => !letter));
       return;
     }
     if (new Set(letters).size !== 12) {
@@ -216,28 +166,17 @@ export default function LetterBoxed() {
                 <span>one square</span>
                 <em>two words</em>
               </div>
-              {letters.map((letter, index) => (
+              {letters.map((_, index) => (
                 <input
                   key={index}
-                  ref={(element) => {
-                    inputs.current[index] = element;
-                  }}
+                  {...tileInputs.bind(index)}
                   className="letterboxed-input"
-                  value={letter}
-                  maxLength={1}
                   aria-label={`${sideNames[Math.floor(index / 3)]} letter ${(index % 3) + 1}`}
                   style={{
                     left: `${positions[index][0]}%`,
                     top: `${positions[index][1]}%`,
                   }}
-                  onChange={(event) => changeLetter(index, event.target.value)}
-                  onPaste={(event) => pasteLetters(event, index)}
-                  onKeyDown={(event) => handleKey(event, index)}
-                  onFocus={(event) => event.target.select()}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
+                  aria-describedby="letterboxed-hint"
                 />
               ))}
             </div>
@@ -252,18 +191,19 @@ export default function LetterBoxed() {
               className="letterboxed-example"
               onClick={() => {
                 clearSearch();
+                tileInputs.clearError();
                 setLetters([...example]);
               }}
             >
               Try an example
             </button>
-            <button type="submit" className="primary-button" disabled={loading}>
+            <button type="submit" className="primary-button" disabled={loading || !tileInputs.complete}>
               {loading ? "Searching…" : "Find two-word solutions →"}
             </button>
           </div>
-          {error && (
+          {(error || tileInputs.error) && (
             <p className="error-note letterboxed-error" role="alert">
-              {error}
+              {tileInputs.error || error}
             </p>
           )}
         </form>

@@ -15,7 +15,6 @@
 .letterboxed-example { font-size:.78rem; text-decoration:underline; text-underline-offset:4px; }
 .letterboxed-example:focus-visible { outline:2px solid var(--forest); outline-offset:4px; }
 .letterboxed-form .primary-button { max-width:100%; padding:.75rem 1rem; text-align:center; }
-.letterboxed-form .primary-button:disabled { opacity:.7; cursor:wait; transform:none; box-shadow:none; }
 .letterboxed-error { margin:0; }
 .letterboxed-status:not(:empty) { margin-top:1.5rem; }
 .letterboxed-results-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:.5rem; margin-bottom:.5rem; }
